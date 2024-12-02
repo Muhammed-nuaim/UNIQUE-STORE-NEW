@@ -1,6 +1,8 @@
 const express = require("express");
 const admin_route = express.Router();
 const multer = require('multer'); // Import Multer
+const shart = require('sharp');
+const path = require('path');
 const customerController = require("../controllers/admin/customerController");
 const adminController = require("../controllers/admin/adminController");
 const categoryController = require("../controllers/admin/categoryController");
@@ -10,19 +12,33 @@ const offerController = require("../controllers/admin/offerController");
 const couponController = require("../controllers/admin/couponController");
 const salesController = require("../controllers/admin/salesController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
+// const { path } = require("pdfkit");
 
 // Configure Multer for file uploads
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/re-image'); // Define where the uploaded images will be stored
+    destination: (req, file, cb) => {
+        cb(null, "public/uploads/re-image");
     },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
-    }
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, `${file.fieldname}-${uniqueSuffix}-${file.originalname}`);
+    },
 });
-  
-const uploads = multer({ storage: storage }); // Create an instance of Multer
+
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error("Unsupported file type. Only PNG, JPG, JPEG, SVG, and WEBP are allowed."), false);
+    }
+};
+
+const uploads = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+    fileFilter,
+});
 
 admin_route.get("/page-error", adminController.pageerror);
 admin_route.get("/login", adminController.loadLogin);

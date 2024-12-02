@@ -111,7 +111,7 @@
                                <!-- Image 1 -->
                                <div class="col-lg-6 mb-4">
                                    <label for="input1" class="form-label">Image 1</label>
-                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg"
+                                   <input class="form-control" type="file" name="images" id="input1"  accept=".png, .jpg, .jpeg, .svg, .webp"
                                        onchange="viewImage(event, 1)">
                                    <div id="imgPreview1" class="mt-2">
                                        <img src="" alt="" id="imgView1" style="max-width: 100%; display:none;">
@@ -127,7 +127,7 @@
                                <!-- Image 2 -->
                                <div class="col-lg-6 mb-4">
                                    <label for="input2" class="form-label">Image 2</label>
-                                   <input class="form-control" type="file" name="images" id="input2" accept="image/png, image/jpeg, image/jpg"
+                                   <input class="form-control" type="file" name="images" id="input2"  accept=".png, .jpg, .jpeg, .svg, .webp"
                                        onchange="viewImage(event, 2)">
                                    <div id="imgPreview2" class="mt-2">
                                        <img src="" alt="" id="imgView2" style="max-width: 100%; display:none;">
@@ -141,7 +141,7 @@
 
                                <div class="col-lg-6 mb-4">
                                 <label for="input3" class="form-label">Image 3</label>
-                                <input class="form-control" type="file" name="images" id="input3" accept="image/png, image/jpeg, image/jpg"
+                                <input class="form-control" type="file" name="images" id="input3"  accept=".png, .jpg, .jpeg, .svg, .webp"
                                     onchange="viewImage(event, 3)">
                                 <div id="imgPreview3" class="mt-2">
                                     <img src="" alt="" id="imgView3" style="max-width: 100%; display:none;">
@@ -155,7 +155,7 @@
 
                             <div class="col-lg-6 mb-4">
                                 <label for="input4" class="form-label">Image 4</label>
-                                <input class="form-control" type="file" name="images" id="input4" accept="image/png, image/jpeg, image/jpg"
+                                <input class="form-control" type="file" name="images" id="input4"  accept=".png, .jpg, .jpeg, .svg, .webp"
                                     onchange="viewImage(event, 4)">
                                 <div id="imgPreview4" class="mt-2">
                                     <img src="" alt="" id="imgView4" style="max-width: 100%; display:none;">
@@ -181,7 +181,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 <%- include('../layouts/admin/footer.ejs') %>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<% if (successMessage && successMessage.length) { %>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '<%= successMessage %>',
+            confirmButtonText: 'OK'
+        });
+    </script>
+<% } %>
+
+<% if (errorMessage && errorMessage.length) { %>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<%= errorMessage %>',
+            confirmButtonText: 'OK'
+        });
+    </script>
+<% } %>
 <script>
     function validateForm() {
         let isValid = true;
@@ -329,43 +352,63 @@
         document.getElementById('imgView4').src = URL.createObjectURL(event.target.files[0])
     }
         
-        
     function viewImage(event, index) {
-        let input = event.target;
-        let reader = new FileReader();
-    reader.onload = function () {
-        let dataURL = reader.result;
-        let image = document.getElementById('imgView' + index);
-        image.src = dataURL;
-        let cropper = new Cropper(image, {
-        aspectRatio: 1,
-        viewMode: 1,
-        guides: true,
-        background: false,
-        autoCropArea: 1,
-        zoomable: true
-    });
-    let cropperContainer = document.querySelector('#croppedImg' + index).parentNode;
-        cropperContainer.style.display = 'block';
-        let saveButton = document.querySelector('#saveButton' + index);
-        saveButton.addEventListener('click', async function () {
-        let croppedCanvas = cropper.getCroppedCanvas();
-        let croppedImage = document.getElementById("croppedImg" + index);
-        croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
-        let timestamp = new Date().getTime();
-        let fileName = `cropped-img-${timestamp}-${index}.png`;
-        await croppedCanvas.toBlob(blob => {
-        let input = document.getElementById('input' + index);
-        let imgFile = new File([blob], fileName, blob)
-        const fileList = new DataTransfer();
-        fileList.items.add(imgFile);
-        input.files = fileList.files
-    });
-        cropperContainer.style.display = 'none';
-        cropper.destroy();
-    });
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+        const input = event.target;
+        const file = input.files[0];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please upload a valid image file (PNG, JPG, JPEG, SVG, WEBP).');
+            input.value = ''; // Clear the input
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function () {
+            const dataURL = reader.result;
+            const image = document.getElementById(`imgView${index}`);
+            image.src = dataURL;
+            image.style.display = 'block';
+
+            const cropperContainer = document.querySelector(`#croppedImageContainer${index}`);
+            cropperContainer.style.display = 'block';
+
+            const cropper = new Cropper(image, {
+                aspectRatio: 1, // Adjust aspect ratio (e.g., 1:1 for square, change as needed)
+                viewMode: 1,
+                autoCropArea: 1,
+                background: false,
+                zoomable: true,
+            });
+
+            const saveButton = document.querySelector(`#saveButton${index}`);
+            saveButton.addEventListener('click', async function () {
+                const croppedCanvas = cropper.getCroppedCanvas({
+                    width: 800, // Set uniform width
+                    height: 800, // Set uniform height
+                });
+
+                const croppedImage = document.getElementById(`croppedImg${index}`);
+                croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0); // High-quality JPEG output
+
+                const timestamp = new Date().getTime();
+                const fileName = `cropped-img-${timestamp}-${index}.jpeg`;
+
+                await croppedCanvas.toBlob(blob => {
+                    const croppedFile = new File([blob], fileName, { type: 'image/jpeg' });
+
+                    // Add the cropped file back to the input for form submission
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(croppedFile);
+                    input.files = dataTransfer.files;
+                });
+
+                cropperContainer.style.display = 'none';
+                cropper.destroy();
+            });
         };
-    reader.readAsDataURL(input.files[0]);
+
+        reader.readAsDataURL(file);
     }
     
     

@@ -5,7 +5,6 @@ const Whishlist = require("../../models/whishlistModel")
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
-const { log } = require("console");
 
 // Load the page to add products
 const getProductAddPage = async (req, res) => {
@@ -22,54 +21,53 @@ const getProductAddPage = async (req, res) => {
 
 const addProducts = async (req, res) => {
     try {
-        const {productName,description,specification,regularPrice,salePrice,quantity,size,category}= req.body;
+        const { productName, description, specification, regularPrice, salePrice, quantity, size, category } = req.body;
 
-        const productExists = await Product.findOne({
-            productName: productName,
+        const productExists = await Product.findOne({ productName });
+        if (productExists) {
+            req.flash('error', "Product already exists. Try with another name.");
+        }
+
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const originalImagePath = file.path;
+
+                const resizedImagePath = path.join("public", "uploads", "product-images", file.filename);
+
+                await sharp(originalImagePath)
+                    .resize({ width: 404, height: 440, fit: "cover" })
+                    .toFile(resizedImagePath);
+
+                images.push(file.filename);
+            }
+        }
+
+        // Validate category
+        const categoryId = await Category.findOne({ name: category });
+        if (!categoryId) {
+            return res.status(400).json({ error: "Invalid category name" });
+        }
+
+        // Create and save the new product
+        const newProduct = new Product({
+            productName,
+            description,
+            specification,
+            category: categoryId._id,
+            regularPrice,
+            salePrice,
+            quantity,
+            size,
+            productImage: images,
+            createdOn: new Date(),
+            status: "Available",
         });
 
-
-        if (!productExists) {
-            const images = [];
-
-            if (req.files && req.files.length > 0) {
-                for (let i = 0; i < req.files.length; i++) {
-                    const originalImagePath = req.files[i].path;
-
-                    const resizedImagePath = path.join('public', 'uploads', 'product-images', req.files[i].filename);
-
-                    await sharp(originalImagePath).resize({ width: 404, height: 440 }).toFile(resizedImagePath);
-                    images.push(req.files[i].filename);
-                }
-            }
-
-            const categoryId = await Category.findOne({ name: category });
-            if (!categoryId) {
-                return res.status(400).json({ error: "Invalid category name" });
-            }
-
-            const newProduct = new Product({
-                productName: productName,
-                description: description,
-                specification: specification,
-                category: categoryId._id,
-                regularPrice: regularPrice,
-                salePrice: salePrice,
-                createdOn: new Date(),
-                quantity: quantity,
-                size: size,
-                productImage: images,
-                status: 'Available',
-            });
-
-            await newProduct.save();
-
-            return res.redirect("/admin/addProducts");
-        } else {
-            return res.status(400).json({ error: "Product already exists, please try with another name" });
-        }
+        await newProduct.save();
+        return res.redirect("/admin/addProducts");
     } catch (error) {
-        console.error("Error saving product", error);
+        console.error("Error adding product:", error);
         return res.redirect("/admin/page-error");
     }
 };
