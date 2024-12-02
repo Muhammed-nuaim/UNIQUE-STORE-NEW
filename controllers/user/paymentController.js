@@ -66,8 +66,8 @@ const getPayPal = async(req,res) => {
                 "payment_method": paymentMethod
             },
             "redirect_urls": {
-                "return_url": "http://localhost:3000/successPayPal",
-                "cancel_url": "http://localhost:3000/cancelPayPal"
+                "return_url": "https://unique.nuaim.tech/successPayPal",
+                "cancel_url": "https://unique.nuaim.tech/cancelPayPal"
             },
             "transactions": [{
                 "item_list": {
