@@ -1,0 +1,555 @@
+<%- include('../layouts/user/header.ejs') %>
+	
+	<!-- Product -->
+	<div class="bg0 m-t-23 p-b-140">
+		<div class="container">
+			<div class="flex-w flex-sb-m p-b-52">
+				
+				<div class="flex-w flex-sb-m p-b-52">
+				
+					<div class="flex-w flex-c-m m-tb-10">
+                        <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                            <select id="category-select" class="stext-106 cl6 size-104" onchange="handleCategoryFilter(this.value)">
+                                <option value="">All Categories</option>
+                                <% for (let i = 0; i < category.length; i++) { %>
+                                    <option value="<%= category[i]._id %>" <%= categoryBy === category[i]._id.toString() ? 'selected' : '' %>>
+                                        <%= category[i].name %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+
+                        <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                            <select id="size-select" class="stext-106 cl6 size-104" onchange="handleSize(this.value)">
+                                <option value="">All Sizes</option>
+                                <option value="1:12" <%= sizeBy === '1:12' ? 'selected' : '' %>>1:12</option>
+                                <option value="1:18" <%= sizeBy === '1:18' ? 'selected' : '' %>>1:18</option>
+                                <option value="1:64" <%= sizeBy === '1:64' ? 'selected' : '' %>>1:64</option>
+                            </select>
+                        </div>
+
+						<div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+							<select id="sort-select" class="stext-106 cl6 size-104" onchange="handleSort(this.value)">
+								<option value="">Sort By</option>
+								<option value="nameAsc">Name: A to Z</option>
+								<option value="nameDesc">Name: Z to A</option>
+								<option value="priceAsc">Price: Low to High</option>
+								<option value="priceDesc">Price: High to Low</option>
+								<option value="newArrivals">New Arrivals</option>
+							</select>
+						</div>
+				
+						<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+							<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+							<i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+							Search
+						</div>
+					</div>
+					
+					<div class="dis-none panel-search w-full p-t-10 p-b-15">
+						<div class="bor8 dis-flex p-l-15">
+							<button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+								<i class="zmdi zmdi-search"></i>
+							</button>
+							<input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" id="search-product" 
+								   name="search-product" placeholder="Search" onkeyup="handleSearch(event)">
+						</div>  
+					</div>
+				</div>
+				
+				<input type="hidden" id="current-sort" value="">
+			</div>
+
+			<div class="row isotope-grid">
+				<% if (products) { %>
+				<% for(let i = 0 ; i < products.length; i++ ) {%>
+					<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+						<!-- Block2 -->
+						<div class="block2">
+							<div class="block2-pic hov-img0">
+                            <a href="/productDetails?id=<%=products[i]._id%>">
+                                <div>
+								<img src="/uploads/re-image/<%=products[i].productImage[0] %>" alt="<%=products[i].productName %>">
+                                </div></a>
+								<button class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" onclick="addToCart('<%=products[i]._id %>')">
+                                    Add to cart
+                                </button>
+							</div>
+	
+							<div class="block2-txt flex-w flex-t p-t-14">
+								<div class="block2-txt-child1 flex-col-l ">
+									<a href="/productDetails?id=<%=products[i]._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+										<%=products[i].productName%>
+									</a>
+	
+									<span class="stext-105 cl3" >
+											<p>Original Price: <del>₹<%=products[i].regularPrice %></del></p>
+											<p>Offer Price: ₹<%=products[i].salePrice %></p>
+											<p>Size:<%=products[i].size %></p>
+									</span>
+								</div>
+	
+								<div class="block2-txt-child2 flex-r p-t-3">
+									<a id="wishlist-btn-<%=products[i]._id%>" 
+									   class="btn-addwish-b2 dis-block pos-relative tooltip100" 
+									   data-tooltip="Add to Wishlist" 
+									   onclick="addWhishlist('<%=products[i]._id%>')">
+                                       <% if (wishlistProductIds.includes(products[i]._id.toString())) { %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                            <rect width="24" height="24" fill="none" />
+                                            <path fill="red" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+                                        </svg>
+                                        <% } else { %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                            <rect width="24" height="24" fill="none" />
+                                            <path fill="black" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+                                        </svg>
+                                        <% } %>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				<% } %>
+			<% } %>
+		</div>
+
+			
+<div class="flex-c-m flex-w w-full p-t-45">
+    <nav aria-label="Page navigation" class="w-full">
+        <ul class="pagination justify-content-center flex-wrap">
+            <% if (totalPages > 1) { %>
+                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                    <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                       href="<%= currentPage === 1 ? '#' : '?page=' + (currentPage - 1) %>"
+                       <%= currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : '' %>>
+                        &laquo;
+                    </a>
+                </li>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                               href="?page=<%= i %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+                        <li class="page-item disabled">
+                            <span class="page-link flex-c-m how-pagination1 trans-04 m-all-7">...</span>
+                        </li>
+                    <% } %>
+                <% } %>
+
+                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                    <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                       href="<%= currentPage === totalPages ? '#' : '?page=' + (currentPage + 1) %>"
+                       <%= currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : '' %>>
+                        &raquo;
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+		</div>
+	</div>
+		
+
+	<!-- Footer -->
+	<%- include('../layouts/user/footer.ejs') %>
+
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+let currentState = {
+    page: 1,
+    category: '',
+    size: '',
+    sort: '',
+    search: ''
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    currentState.page = parseInt(urlParams.get('page')) || 1;
+    currentState.category = urlParams.get('category') || '';
+    currentState.size = urlParams.get('size') || '';
+    currentState.sort = urlParams.get('sort') || '';
+    currentState.search = urlParams.get('search') || '';
+    
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.value = currentState.sort;
+    }
+
+    const categorySelect =  document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.value = currentState.category;
+    }
+
+    const sizeSelect = document.getElementById('size-select');
+    if (sizeSelect) {
+        sizeSelect.value = currentState.size;
+    }
+    
+    const searchInput = document.getElementById('search-product');
+    if (searchInput && currentState.search) {
+        searchInput.value = currentState.search;
+    }
+
+    if (currentState.search) {
+        const searchPanel = document.querySelector('.panel-search');
+        if (searchPanel) {
+            searchPanel.classList.remove('dis-none');
+        }
+    }
+});
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const handleSearch = debounce(async (event) => {
+    const searchValue = event.target.value.trim();
+    
+    currentState.search = searchValue;
+    currentState.page = 1; 
+    
+    await updateProducts();
+}, 300);
+
+async function handleSort(value) {
+    currentState.sort = value;
+    currentState.page = 1; 
+    await updateProducts();
+}
+
+async function handleCategoryFilter(value) {
+    try {
+        currentState.category = value;
+        currentState.page = 1;
+        await updateProducts();
+    } catch (error) {
+        console.error('Error in category filter:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to filter products. Please try again.'
+        });
+    }
+}
+
+async function handleSize(value) {
+    try {
+        currentState.size = value;
+        currentState.page = 1;
+        await updateProducts();
+    } catch (error) {
+        console.error('Error in size filter:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to filter products. Please try again.'
+        });
+    }
+}
+
+async function updateProducts() {
+    try {
+        const url = new URL(window.location.href);
+        
+        url.searchParams.delete('page');
+        url.searchParams.delete('sort');
+        url.searchParams.delete('category');
+        url.searchParams.delete('size');
+        url.searchParams.delete('search');
+        
+        url.searchParams.set('page', currentState.page);
+        if (currentState.sort) url.searchParams.set('sort', currentState.sort);
+        if (currentState.category) url.searchParams.set('category', currentState.category);
+        if (currentState.size) {
+            url.searchParams.set('size', currentState.size);
+        }
+        if (currentState.search) url.searchParams.set('search', currentState.search);
+       
+        
+        window.history.pushState({}, '', url);
+        
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch products');
+
+        const data = await response.json();
+        
+        updateProductDisplay(data.products);
+        updatePagination(data.currentPage, data.totalPages);
+        
+    } catch (err) {
+        console.error('Error updating products:', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Failed to update products. Please try again.'
+        });
+    }
+}
+
+function updateProductDisplay(products) {
+    const container = document.querySelector('.isotope-grid');
+    if (!container) return;
+
+    if (products.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center p-5">
+                <h3 class="text-muted">No products found</h3>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = products.map(product => `
+        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+            <div class="block2">
+                <div class="block2-pic hov-img0">
+                    <img src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
+                    <a href="/productDetails?id=${product._id}" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                        Product View
+                    </a>
+                </div>
+                <div class="block2-txt flex-w flex-t p-t-14">
+                    <div class="block2-txt-child1 flex-col-l">
+                        <a href="/productDetails?id=${product._id}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                            ${product.productName}
+                        </a>
+                        <span class="stext-105 cl3">
+                            <p>Original Price: <del>₹${product.regularPrice}</del></p>
+                            <p>Offer Price: ₹${product.salePrice}</p>
+                            <p>Size: ${product.size}</p>
+                        </span>
+                    </div>
+                    <div class="block2-txt-child2 flex-r p-t-3">
+                        <a id="wishlist-btn-${product._id}" 
+                           class="btn-addwish-b2 dis-block pos-relative tooltip100" 
+                           data-tooltip="Add to Wishlist" 
+                           onclick="addWhishlist('${product._id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                <rect width="24" height="24" fill="none" />
+                                <path fill="black" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updatePagination(currentPage, totalPages) {
+    const paginationContainer = document.querySelector('.flex-c-m.flex-w.w-full.p-t-45');
+    if (!paginationContainer) return;
+    
+    let paginationHTML = `
+        <nav aria-label="Page navigation" class="w-full">
+            <ul class="pagination justify-content-center flex-wrap">
+    `;
+    
+    if (totalPages > 1) {
+        paginationHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                   href="javascript:void(0)" 
+                   onclick="${currentPage === 1 ? '' : `changePage(${currentPage - 1})`}"
+                   ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                    &laquo;
+                </a>
+            </li>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                           href="javascript:void(0)" 
+                           onclick="changePage(${i})">
+                            ${i}
+                        </a>
+                    </li>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                paginationHTML += `
+                    <li class="page-item disabled">
+                        <span class="page-link flex-c-m how-pagination1 trans-04 m-all-7">...</span>
+                    </li>
+                `;
+            }
+        }
+
+        paginationHTML += `
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link flex-c-m how-pagination1 trans-04 m-all-7" 
+                   href="javascript:void(0)" 
+                   onclick="${currentPage === totalPages ? '' : `changePage(${currentPage + 1})`}"
+                   ${currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                    &raquo;
+                </a>
+            </li>
+        `;
+    }
+
+    paginationHTML += `
+            </ul>
+        </nav>
+    `;
+
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+`
+.how-pagination1 {
+    font-size: 14px;
+    color: #808080;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e6e6e6;
+    background-color: #fff;
+}
+
+.how-pagination1:hover {
+    background-color: #717fe0;
+    color: #fff;
+    border-color: #717fe0;
+}
+
+.pagination .active .how-pagination1 {
+    background-color: #717fe0;
+    color: #fff;
+    border-color: #717fe0;
+}
+
+.page-item.disabled .how-pagination1 {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #e6e6e6;
+}
+`
+
+function addWhishlist(id) {
+    $.ajax({
+        url: "/addWhishlist",
+        type: "POST",
+        data: JSON.stringify({
+            id: id,
+        }),
+        contentType: "application/json",
+        success: function (res) {
+            if (res.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: res.message,
+                }).then(() => {
+                    location.reload()
+                })
+            } else if (res.success == false) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Removed",
+                    text: res.message,
+                }).then(() => {
+                    location.reload()
+                })
+            }else {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Oops!",
+                    text: res.message || "User Not Logged In",
+                }).then(() => {
+                window.location.href = '/login';
+                })
+            }
+        },
+        error: function () {
+            Swal.fire({
+                icon: "error",
+                title: "Oops!",
+                text: "An error occurred. Please login.",
+            }).then((result) => {
+                window.location.href = '/login';
+            });
+        }
+    });
+}
+
+function addToCart(id) {
+		$.ajax({
+			url: "/addToCart",
+			type: "POST",
+			data: JSON.stringify({
+				id:id
+			}),
+			contentType: "application/json",
+			success: function (res) {
+				if(res.success) {
+					Swal.fire({
+						icon:"success",
+						title:"Success",
+						text: res.message ,
+					}).then((result) => {
+						location.reload()
+					})
+				} else if (res.success == false) {
+					Swal.fire({
+						icon:"error",
+						title:"Error",
+						text: res.message ,
+					})
+				} else {
+					Swal.fire({
+					icon: "warning",
+					title: "Oops!",
+					text: "Please login, Then try again...",
+		  		}).then((result) => {
+					window.location.href = '/login';
+		  		})
+				}
+			},
+			error: function () {
+		  		Swal.fire({
+					icon: "error",
+					title: "Oops!",
+					text: "An error occurred. Please login.",
+		  		}).then((result) => {
+					window.location.href = '/login';
+		  		});
+			}
+		})
+	}
+document.querySelector('.js-show-search').addEventListener('click', function() {
+    const searchPanel = document.querySelector('.panel-search');
+    const searchIcon = document.querySelector('.icon-search');
+    const closeIcon = document.querySelector('.icon-close-search');
+    
+    searchPanel.classList.toggle('dis-none');
+    searchIcon.classList.toggle('dis-none');
+    closeIcon.classList.toggle('dis-none');
+});
+</script>

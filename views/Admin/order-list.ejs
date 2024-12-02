@@ -1,0 +1,78 @@
+<%- include('../layouts/admin/header.ejs') %>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Order List </h2>
+                    <p>UNIQUE THE CRAZY SHOP.</p>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-2 col-6 col-md-3">
+                            <p>Status</p>
+                            <select class="form-select" onchange="window.location.href='?status=' + this.value + '&limit=8&page=1'">
+                                <option value="Show all" <%= status === "Show all" ? "selected" : "" %>>Show all</option>
+                                <option value="Processing" <%= status === "Processing" ? "selected" : "" %>>Processing</option>
+                                <option value="Delivered" <%= status === "Delivered" ? "selected" : "" %>>Delivered</option>
+                                <option value="Shipped" <%= status === "Shipped" ? "selected" : "" %>>Shipped</option>
+                                <option value="Cancelled" <%= status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
+                                <option value="Pending" <%= status === "Pending" ? "selected" : "" %>>Pending</option>
+                                <option value="Return Request" <%= status === "Return Request" ? "selected" : "" %>>Return Request</option>
+                                <option value="Returned" <%= status === "Returned" ? "selected" : "" %>>Returned</option>
+                                <option value="Return Request Approved" <%= status === "Return Request Approved" ? "selected" : "" %>>Return Request Approved</option>
+                                <option value="Return Request Rejected" <%= status === "Return Request Rejected" ? "selected" : "" %>>Return Request Rejected</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+                </header> 
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col" class="text-end"> Action </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (orderList) { %>
+                                    <% for ( i = 0 ; i < orderList.length ; i ++ ) { %>
+                                <tr>
+                                    <td><%= orderList[i].orderId %></td>
+                                    <td><b><%= orderList[i].address[0].name %></b></td>
+                                    <td><%= orderList[i].address[0].phone %></td>
+                                    <td><%= orderList[i].finalAmount %></td>
+                                    <td><span class="badge rounded-pill alert-warning"><%= orderList[i].status %></span></td>
+                                    <td><%= new Date(orderList[i].createdOn).toDateString() %></td>
+                                    <td class="text-end">
+                                        <a href="/admin/orderDetails?id=<%= orderList[i]._id %>" class="btn btn-md rounded font-sm">Detail</a>
+                                    </td>
+                                </tr>
+                                    <% } %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> 
+            <div class="pagination-area mt-15 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>&limit=8&status=<%= status %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            
+        </section> 
+<%- include('../layouts/admin/footer.ejs') %>

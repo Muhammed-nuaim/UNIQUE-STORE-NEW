@@ -1,0 +1,488 @@
+<%- include('../layouts/admin/header.ejs') %>
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 1.5rem;
+  }
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 1rem;
+  }
+  .btn-group {
+    display: inline-flex;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .btn-group .btn {
+    border: none;
+    background: transparent;
+    color: #374151;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: background-color 0.3s;
+  }
+  .btn-group .btn.btn-dark {
+    background-color: #111;
+    color: white;
+  }
+  .custom-date-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .custom-date-form .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .custom-date-form label {
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  .custom-date-form input[type="date"] {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+  }
+  .custom-date-form button {
+    align-self: flex-end;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  .stat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-icon.green { background-color: #ecfdf5; }
+  .stat-icon.red { background-color: #fef2f2; }
+  .stat-icon.orange { background-color: #fff7ed; }
+  .stat-icon.blue { background-color: #eff6ff; }
+  .stat-icon i {
+    font-size: 1.5rem;
+  }
+  .stat-icon.green i { color: #059669; }
+  .stat-icon.red i { color: #dc2626; }
+  .stat-icon.orange i { color: #d97706; }
+  .stat-icon.blue i { color: #2563eb; }
+  .stat-info {
+    flex: 1;
+  }
+  .stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111;
+  }
+  .card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .table th,
+  .table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .table th {
+    background-color: #f9fafb;
+    font-weight: 500;
+    color: #374151;
+  }
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+  .text-danger {
+    color: #dc2626;
+  }
+  .text-end {
+    text-align: right;
+  }
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  .pagination .text-muted {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  .download-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .download-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+</style>
+
+
+
+<div class="container">
+  <h1 class="page-title">Sales Report</h1>
+
+  <!-- Chart Section -->
+  <div class="mb-4">
+    <h5 class="section-title">Sales Overview</h5>
+
+    <!-- Chart Type Buttons -->
+    <div class="btn-group mb-3">
+      <button class="btn btn-outline-primary" data-chart-type="line">Line Chart</button>
+      <button class="btn btn-outline-primary" data-chart-type="bar">Bar Chart</button>
+      <button class="btn btn-outline-primary" data-chart-type="pie">Pie Chart</button>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="section-title">Report Period</h5>
+      <div class="btn-group">
+        <% ['daily', 'weekly', 'monthly', 'yearly', 'custom'].forEach(function(p) { %>
+          <a href="/admin/salesReport?period=<%= p %>" class="btn <%= period === p ? 'btn-dark' : '' %>">
+            <%= p.charAt(0).toUpperCase() + p.slice(1) %>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+    <!-- Chart Canvas -->
+    <canvas id="salesChart" width="400" height="200"></canvas>
+  </div>
+
+
+ <!-- Custom Date Form -->
+ <% if (period === 'custom') { %>
+  <div class="mb-4">
+    <form action="/admin/salesReport" method="GET" class="custom-date-form">
+      <input type="hidden" name="period" value="custom">
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate" name="startDate" value="<%= startDate %>" required>
+      </div>
+      <div class="form-group">
+        <label for="endDate">End Date</label>
+        <input type="date" id="endDate" name="endDate" value="<%= endDate %>" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply</button>
+    </form>
+  </div>
+<% } %>
+
+
+  <!-- Statistics Summary -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon green">
+          <i class="bi bi-currency-rupee"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Order Amount</div>
+          <div class="stat-value text-success">₹<%= totalSalesAmount.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon red">
+          <i class="bi bi-tag"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Coupon Discount</div>
+          <div class="stat-value text-danger">₹<%= totalCouponDiscount.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon orange">
+          <i class="bi bi-percent"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Discount</div>
+          <div class="stat-value text-danger">₹<%= totalOfferDiscount.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon blue">
+          <i class="bi bi-box-seam"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Sales</div>
+          <div class="stat-value"><%= totalSalesCount %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Date</th>
+            <th>Payment Method</th>
+            <th>Products</th>
+            <th>Discount</th>
+            <th>Coupon Discount</th>
+            <th class="text-end">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (sales && sales.length > 0) { %>
+            <% sales.forEach(order => { %>
+              <tr>
+                <td><%= order.userId.name %></td>
+                <td><%= new Date(order.createdOn).toDateString() %></td>
+                <td><%= order.paymentMethod %></td>
+                <td><%= order.orderedItems.length %></td>
+                <td>₹<%= order.discount ? order.discount.toFixed(2) : '0.00' %></td>
+                <td>₹<%= order.couponDiscount ? order.couponDiscount.toFixed(2) : '0.00' %></td>
+                <td class="text-end">₹<%= order.finalAmount.toFixed(2) %></td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="text-center">No sales data available.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="h5 mb-0">Best-Selling Products</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Product Name</th>
+                  <th scope="col">Units Sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% topProducts.forEach((product, index) => { %>
+                  <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td><%= product.productName %></td>
+                    <td><%= product.totalQuantity %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="h5 mb-0">Best-Selling Categories</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Category Name</th>
+                  <th scope="col">Items Sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% topCategories.forEach((category, index) => { %>
+                  <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td><%= category.name %></td>
+                    <td><%= category.count %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <div class="text-muted">
+      Showing <%= sales ? sales.length : 0 %> entries, Page <%= currentPage %> of <%= totalPages %>
+    </div>
+    <div class="btn-group btn-group-sm">
+      <a href="/admin/salesReport?period=<%= period %>&page=<%= Math.max(currentPage - 1, 1) %>&limit=<%= limit %>" class="btn <%= currentPage === 1 ? 'btn-outline-secondary disabled' : 'btn-outline-secondary' %>">
+        <i class="bi bi-chevron-left"></i> Previous
+      </a>
+      <a href="/admin/salesReport?period=<%= period %>&page=<%= Math.min(currentPage + 1, totalPages) %>&limit=<%= limit %>" class="btn <%= currentPage === totalPages ? 'btn-outline-secondary disabled' : 'btn-outline-secondary' %>">
+        Next <i class="bi bi-chevron-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Download Buttons -->
+  <div class="download-buttons">
+    <a href="/admin/downloadSalesReportInPdf?period=<%= period %><%= period === 'custom' ? '&startDate=' + startDate + '&endDate=' + endDate : '' %>" class="btn btn-outline-dark btn-dark text-white">
+      <i class="bi bi-file-earmark-pdf"> Download as PDF</i>
+    </a>
+    <a href="/admin/downloadSalesReportInExcel?period=<%= period %><%= period === 'custom' ? '&startDate=' + startDate + '&endDate=' + endDate : '' %>">
+      <button class="bi bi-file-earmark-excel btn btn-outline-dark btn-dark text-white">Download as Excel</button>
+    </a>
+  </div>
+
+<div id="chart-data" data-chart='<%= JSON.stringify(chartData || { labels: [], salesData: [], discountData: [] }) %>'></div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Retrieve the chart data from the hidden div
+  const chartElement = document.getElementById('chart-data');
+  const chartData = JSON.parse(chartElement.getAttribute('data-chart'));
+
+  // Extract data
+  const { labels, salesData, discountData } = chartData;
+
+  // Fallback for empty data
+  if (!labels.length || !salesData.length || !discountData.length) {
+    console.warn('No data available for the chart.');
+  }
+
+  let currentChartType = 'line';
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  let chartInstance = createChart(currentChartType);
+
+  // Create Chart Function
+  function createChart(type) {
+    return new Chart(ctx, {
+      type: type,
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Sales Amount',
+            data: salesData,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            fill: type === 'line'
+          },
+          {
+            label: 'Discount',
+            data: discountData,
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            fill: type === 'line'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: type === 'pie' ? {} : { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Event Listeners for Chart Type
+  document.querySelectorAll('[data-chart-type]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const type = e.target.getAttribute('data-chart-type');
+      if (type && type !== currentChartType) {
+        currentChartType = type;
+        chartInstance.destroy();
+        chartInstance = createChart(type);
+      }
+    });
+  });
+
+
+
+  const customDateForm = document.getElementById('customDateForm');
+
+  if (customDateForm) {
+    customDateForm.addEventListener('submit', function(e) {
+      // Get startDate and endDate values
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      // Check if dates are selected
+      if (!startDate || !endDate) {
+        e.preventDefault();
+        alert('Please select both start and end dates.');
+        return;
+      }
+
+      // Check if endDate is after startDate
+      if (new Date(endDate) < new Date(startDate)) {
+        e.preventDefault();
+        alert('End date must be after the start date.');
+        return;
+      }
+
+      // Dates are valid; form will be submitted
+    });
+  }
+</script>
+
+<%- include('../layouts/admin/footer.ejs') %>

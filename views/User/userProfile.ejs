@@ -1,0 +1,712 @@
+<%- include('../layouts/user/header.ejs') %>
+<!-- breadcrumb -->
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+      Home
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <span class="stext-109 cl4">
+      Profile Page
+    </span>
+  </div>
+</div>
+<main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">My Account</h1>
+    <div class="tabs space-y-4">
+      <div class="tabs-list">
+        <button class="tab" data-tab="orders">Orders</button>
+        <button class="tab" data-tab="wishlist">Wishlist</button>
+        <button class="tab" data-tab="cart">Cart</button>
+        <button class="tab" data-tab="addresses">Addresses</button>
+        <button class="tab active" data-tab="profile">Profile</button>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="tab-content" id="orders">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">My Orders</h2>
+            <p class="card-description">View and manage your order history</p>
+          </div>
+          <div class="card-content">
+            <% for(let i=0 ; i<orderData.length ; i++) { %>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 border rounded">
+                <div class="flex items-center space-x-4">
+                  <div>
+                    <p class="font-semibold">Order Id:<%= orderData[i].orderId%></p>
+                    <p class="font-semibold">Name:<%= orderData[i].address[0].name%></p>
+                    <p class="font-semibold">Address:<%= orderData[i].address[0].landMark%>,<%= orderData[i].address[0].city%>,<%= orderData[i].address[0].state%></p>
+                    <p class="font-semibold">Pincode:<%= orderData[i].address[0].pincode%></p>
+                    <p class="font-semibold">Status:<%= orderData[i].status%></p>
+                    <% if (orderData[i].paymentStatus == "Failed") {%>
+                      <p class="text-danger">Payment Status: <%= orderData[i].paymentStatus %> </p>
+                    <% } else { %>
+                      <p class="text-success">Payment Status: <%= orderData[i].paymentStatus %></p>
+                    <% } %>
+                  </div>
+                </div>
+                <a href="/viewOrderDetails?id=<%= orderData[i]._id %>"><button  class="btn btn-outline btn-sm">View Details</button></a>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wishlist Tab -->
+      <div class="tab-content" id="wishlist">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">My Wishlist</h2>
+            <p class="card-description">Items you've saved for later</p>
+          </div>
+          <div class="card-content">
+            <% for(let i=0 ; i<whishlistData.length ; i++) { %>
+            <div class="space-y-4">
+              <div class="border rounded p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                <div><img class="w-16 h-16 bg-gray-200" src="/uploads/re-image/<%=whishlistData[i].productImage[0] %>" alt="<%= whishlistData[i].productName %>"></div>
+                    <p class="font-semibold"><%= whishlistData[i].productName %></p>
+                    <p class="text-sm text-muted-foreground">₹<%= whishlistData[i].salePrice %></p>
+                  </div>
+                  <div>
+                    <a onclick="whishlistDelete('<%= whishlistData[i]._id %>')"><button  class="btn btn-outline btn-danger btn-sm">Delete</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Tab -->
+      <div class="tab-content" id="cart">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">My Cart</h2>
+            <p class="card-description">Items ready for checkout</p>
+          </div>
+          <div class="card-content">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between border-b pb-4">
+                <div class="flex items-center space-x-4">
+                  <div class="w-16 h-16 bg-gray-200"></div>
+                  <div>
+                    <p class="font-semibold">Product Name</p>
+                    <p class="text-sm text-muted-foreground">Quantity: 1</p>
+                  </div>
+                </div>
+                <p class="font-semibold">$99.99</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary w-full">Proceed to Checkout</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Addresses Tab -->
+      <div class="tab-content" id="addresses">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">My Addresses</h2>
+            <p class="card-description">Manage your shipping addresses</p>
+          </div>
+          <div class="card-content">
+            <% if (addressData) { %>
+            <% for(let i=0 ; i<addressData.length ; i++) { %>
+            <div class="space-y-4">
+              <div class="border rounded p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="font-semibold"><%= addressData[i].addressType %></p>
+                    <p class="text-sm text-muted-foreground"><%= addressData[i].landMark %>, <%= addressData[i].city %>, <%= addressData[i].state %>,<%= addressData[i].pincode %></p>
+                  </div>
+                  <div>
+                    <a onclick="addressDelete('<%= addressData[i]._id %>')"><button  class="btn btn-outline btn-danger btn-sm">Delete</button></a>
+                    <a href="/editAddress?id=<%= addressData[i]._id %>"><button  class="btn btn-outline btn-sm">Edit</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } %>
+            <% } %>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-outline w-full" id="addNewAddressBtn">Add New Address</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div class="tab-content active" id="profile">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Edit Profile</h2>
+            <p class="card-description">Update your account details</p>
+          </div>
+          <div class="card-content">
+            <form id="profileForm" class="space-y-4">
+              <div class="space-y-2">
+                <label for="username" class="block">Username</label>
+                <input id="username" type="text" value="<%= userData.name %>" class="input w-full">
+              </div>
+              <div class="space-y-2">
+                <label for="email" class="block">Email</label>
+                <input id="email" type="email" value="<%= userData.email %>" class="input w-full bg-gray-100" readonly>
+                <p class="text-sm text-muted-foreground">Email cannot be changed</p>
+              </div>
+              <div class="card-footer">
+                <button type="submit" class="btn btn-primary w-full">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+</main>
+
+<!-- Modal for Address Form -->
+<div id="addressModal" class="fixed inset-0 overflow-y-auto h-full w-full" style="display: none;">
+  <div class="relative top-20 mx-auto border border-black w-75 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Add New Address</h3>
+      <form id="addressForm" class="mt-2 text-left" method="post" action="/addAddress">
+        <input type="hidden" id="addressId" name="addressId">
+        <div class="mb-2">
+          <label for="addressType" class="block text-sm font-medium text-black">Address Type</label>
+          <select id="addressType" name="addressType" class="mt-1 block w-full py-2 px-3 border-black bg-white rounded-md shadow-sm">
+            <option value="Home">Home</option>
+            <option value="WorkSpace">WorkSpace</option>
+            <option value="Shop">Shop</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label for="name" class="block text-sm font-medium text-black">Name</label>
+          <input type="text" id="name" name="name"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error1" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="city" class="block text-sm font-medium text-black">City</label>
+          <input type="text" id="city" name="city"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error2" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="landMark" class="block text-sm font-medium text-black">Landmark</label>
+          <input type="text" id="landMark" name="landMark"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error3" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="state" class="block text-sm font-medium text-black">State</label>
+          <input type="text" id="state" name="state"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error4" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="pincode" class="block text-sm font-medium text-black">Pincode</label>
+          <input type="text" id="pincode" name="pincode"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error5" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="phone" class="block text-sm font-medium text-black">Phone</label>
+          <input type="tel" id="phone" name="phone"  class="mt-1 focus:ring-indigo-500 py-2 block w-full shadow-sm sm:text-sm border-black rounded-md">
+          <div id="error6" class="error-message"></div>
+        </div>
+        <div class="mb-2">
+          <label for="altPhone" class="block text-sm font-medium text-black">Alternative Phone (optional)</label>
+          <input type="tel" id="altPhone" name="altPhone"  class="mt-1 block w-full py-2 sm:text-sm border-black rounded-md">
+          <div id="error7" class="error-message"></div>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button type="button" id="cancelAddress" class="mr-2 px-4 py-2 bg-white text-sm text-black border-black rounded">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-sm text-black border-black rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<%- include('../layouts/user/footer.ejs') %>
+<style>
+  .container { width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+  .mx-auto { margin-left: auto; margin-right: auto; }
+  .px-4 { padding-left: 1rem; padding-right: 1rem; }
+  .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+  .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+  .font-bold { font-weight: 700; }
+  .mb-6 { margin-bottom: 1.5rem; }
+  .space-y-4 > * + * { margin-top: 1rem; }
+  .tabs-list { display: flex; border-bottom: 1px solid #e5e7eb; }
+  .tab { padding: 0.5rem 1rem; cursor: pointer; }
+  .tab.active { border-bottom: 2px solid #3b82f6; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .card { background-color: white; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+  .card-header { padding: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+  .card-title { font-size: 1.25rem; font-weight: 600; }
+  .card-description { color: #6b7280; font-size: 0.875rem; }
+  .card-content { padding: 1.5rem; }
+  .card-footer { padding: 1.5rem; border-top: 1px solid #e5e7eb; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 0.375rem; font-weight: 500; padding: 0.5rem 1rem; transition: background-color 0.2s; }
+  .btn-primary { background-color: #3b82f6; color: white; }
+  .btn-outline { border: 1px solid #d1d5db; }
+  .btn-sm { font-size: 0.875rem; padding: 0.25rem 0.5rem; }
+  .input { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+  .grid { display: grid; }
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gap-4 { gap: 1rem; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .space-x-4 > * + * { margin-left: 1rem; }
+  .border { border: 1px solid #e5e7eb; }
+  .rounded { border-radius: 0.375rem; }
+  .w-16 { width: 4rem; }
+  .h-16 { height: 4rem; }
+  .bg-gray-200 { background-color: #e5e7eb; }
+  .text-sm { font-size: 0.875rem; }
+  .text-muted-foreground { color: #6b7280; }
+  .border-b { border-bottom: 1px solid #e5e7eb; }
+  .pb-4 { padding-bottom: 1rem; }
+  .w-full { width: 100%; }
+  .error-message { color: red; font-size: 0.75rem; display: none; }
+   
+   #addressModal {
+    border: 1px solid black; 
+  }
+
+  #addressForm input, 
+  #addressForm select {
+    border: 1px solid black; 
+    border-radius: 0.375rem; 
+  }
+
+  #addressForm button {
+    border: 1px solid black;
+  }
+  @media (min-width: 768px) {
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
+<!-- JavaScript and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Handle Add New Address Button and Modal
+    const addNewAddressBtn = document.getElementById("addNewAddressBtn");
+    const addressModal = document.getElementById("addressModal");
+    const cancelAddressBtn = document.getElementById("cancelAddress");
+
+    addNewAddressBtn.addEventListener('click', function () {
+      addressModal.style.display = 'block'; // Show the modal
+    });
+
+    cancelAddressBtn.addEventListener('click', function () {
+      addressModal.style.display = 'none'; // Hide the modal
+    });
+
+    window.addEventListener('click', function (e) {
+      if (e.target == addressModal) {
+        addressModal.style.display = 'none'; // Hide modal on outside click
+      }
+    });
+
+  });
+
+    // Profile Form Submission
+    document.getElementById("profileForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const id = "<%=userData._id%>";
+
+      const namePattern = /^[A-Za-z\s]+$/;
+      if (username === "" || !namePattern.test(username)) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Please enter a valid name (only alphabets and spaces allowed)",
+        });
+        return;
+      }
+
+      $.ajax({
+        url: "/updateProfile",
+        type: "PUT",
+        data: JSON.stringify({ id: id, username: username }),
+        contentType: "application/json",
+        success: function(res) {
+          if (res.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: res.message,
+            }).then(() => {
+              location.reload(); 
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: res.message,
+            });
+          }
+        },
+        error: function(error) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops!",
+            text: error.message || "An error occurred",
+          }).then(() => {
+            window.location.href = '/login';
+          });
+        }
+      });
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    const addNewAddressBtn = document.getElementById("addNewAddressBtn");
+    const addressModal = document.getElementById("addressModal");
+    const cancelAddressBtn = document.getElementById("cancelAddress");
+    const form = document.getElementById("addressForm");
+
+    // Show/hide modal functionality
+    addNewAddressBtn.addEventListener('click', () => {
+        addressModal.style.display = 'block';
+    });
+
+    cancelAddressBtn.addEventListener('click', () => {
+        addressModal.style.display = 'none';
+        clearErrors();
+        form.reset();
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target == addressModal) {
+            addressModal.style.display = 'none';
+            clearErrors();
+            form.reset();
+        }
+    });
+
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Perform all validations
+        const isNameValid = nameValidationChecking();
+        const isCityValid = cityValidationChecking();
+        const isLandMarkValid = landMarkValidationChecking();
+        const isStateValid = stateValidationChecking();
+        const isPincodeValid = pincodeValidationChecking();
+        const isPhoneValid = phoneValidationChecking();
+        const isAltPhoneValid = altPhoneValidationChecking();
+
+        // If all validations pass, proceed with form submission
+        if (isNameValid && isCityValid && isLandMarkValid && isStateValid && 
+            isPincodeValid && isPhoneValid && isAltPhoneValid) {
+            
+            // Collect form data
+            const formData = {
+                addressType: document.getElementById("addressType").value,
+                name: document.getElementById("name").value,
+                city: document.getElementById("city").value,
+                landMark: document.getElementById("landMark").value,
+                state: document.getElementById("state").value,
+                pincode: document.getElementById("pincode").value,
+                phone: document.getElementById("phone").value,
+                altPhone: document.getElementById("altPhone").value
+            };
+
+            // Submit form via AJAX
+            submitAddress(formData);
+        }
+    });
+});
+
+// Clear all error messages
+function clearErrors() {
+    const errorElements = document.querySelectorAll('.error-message');
+    errorElements.forEach(element => {
+        element.style.display = 'none';
+        element.innerHTML = '';
+    });
+}
+
+// Validation functions - now return boolean values
+function nameValidationChecking() {
+    const nameval = document.getElementById("name").value;
+    const namepattern = /^[A-Za-z\s]+$/;
+    const error1 = document.getElementById("error1");
+
+    if(nameval.trim() === "") {
+        error1.style.display = "block";
+        error1.innerHTML = "Please enter a valid name";
+        return false;
+    } else if (!namepattern.test(nameval)) {
+        error1.style.display = "block";
+        error1.innerHTML = "Name can only contain alphabets and spaces";
+        return false;
+    } else {
+        error1.style.display = "none";
+        return true;
+    }
+}
+
+function cityValidationChecking() {
+    const cityval = document.getElementById("city").value;
+    const citypattern = /^[A-Za-z\s]+$/;
+    const error2 = document.getElementById("error2");
+
+    if(cityval.trim() === "") {
+        error2.style.display = "block";
+        error2.innerHTML = "Please enter a valid city";
+        return false;
+    } else if (!citypattern.test(cityval)) {
+        error2.style.display = "block";
+        error2.innerHTML = "City can only contain alphabets and spaces";
+        return false;
+    } else {
+        error2.style.display = "none";
+        return true;
+    }
+}
+
+function landMarkValidationChecking() {
+    const landMarkval = document.getElementById("landMark").value;
+    const landMarkpattern = /^[A-Za-z0-9\s]+$/;
+    const error3 = document.getElementById("error3");
+
+    if(landMarkval.trim() !== "" && !landMarkpattern.test(landMarkval)) {
+        error3.style.display = "block";
+        error3.innerHTML = "Landmark can only contain letters, numbers, and spaces";
+        return false;
+    } else {
+        error3.style.display = "none";
+        return true;
+    }
+}
+
+function stateValidationChecking() {
+    const stateval = document.getElementById("state").value;
+    const statepattern = /^[A-Za-z\s]+$/;
+    const error4 = document.getElementById("error4");
+
+    if(stateval.trim() === "") {
+        error4.style.display = "block";
+        error4.innerHTML = "Please enter a valid state";
+        return false;
+    } else if (!statepattern.test(stateval)) {
+        error4.style.display = "block";
+        error4.innerHTML = "State can only contain alphabets and spaces";
+        return false;
+    } else {
+        error4.style.display = "none";
+        return true;
+    }
+}
+
+function pincodeValidationChecking() {
+    const pincodeval = document.getElementById("pincode").value;
+    const pincodepattern = /^\d{5,6}$/;
+    const error5 = document.getElementById("error5");
+
+    if (pincodeval.trim() === "") {
+        error5.style.display = "block";
+        error5.innerHTML = "Please enter a valid pincode";
+        return false;
+    } else if (!pincodepattern.test(pincodeval)) {
+        error5.style.display = "block";
+        error5.innerHTML = "Pincode must be 5 or 6 digits";
+        return false;
+    } else {
+        error5.style.display = "none";
+        return true;
+    }
+}
+
+function phoneValidationChecking() {
+    const phoneval = document.getElementById("phone").value;
+    const phonepattern = /^\d{10}$/;
+    const error6 = document.getElementById("error6");
+
+    if (phoneval.trim() === "") {
+        error6.style.display = "block";
+        error6.innerHTML = "Please enter a valid phone number";
+        return false;
+    } else if (!phonepattern.test(phoneval)) {
+        error6.style.display = "block";
+        error6.innerHTML = "Phone number must be 10 digits";
+        return false;
+    } else {
+        error6.style.display = "none";
+        return true;
+    }
+}
+
+function altPhoneValidationChecking() {
+    const altPhoneval = document.getElementById("altPhone").value;
+    const phonepattern = /^\d{10}$/;
+    const error7 = document.getElementById("error7");
+
+    if(altPhoneval.trim() !== "" && !phonepattern.test(altPhoneval)) {
+        error7.style.display = "block";
+        error7.innerHTML = "Alternative phone number must be 10 digits";
+        return false;
+    } else {
+        error7.style.display = "none";
+        return true;
+    }
+}
+
+// AJAX submission function
+function submitAddress(formData) {
+    $.ajax({
+        url: "/addAddress",
+        type: "POST",
+        data: JSON.stringify(formData),
+        contentType: "application/json",
+        success: function(res) {
+            if (res.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Address added successfully",
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: res.message || "Failed to add address",
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Failed to add address. Please try again.",
+            });
+            console.error("AJAX Error:", status, error);
+        }
+    });
+}
+
+
+//delete Address
+function addressDelete(id) {
+        event.preventDefault();
+         Swal.fire({
+        title: "Are you sure you want to delete this Address?",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+  }).then((result) =>{
+    if(result.isConfirmed) {
+        $.ajax({
+            url:"/deleteAddress",
+            type:"DELETE",
+            data: JSON.stringify({
+                id: id,
+            }),
+            contentType: "application/json",
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire ({
+                        icon: "warning",
+                        title: "Delete",
+                        text: res.message,
+                    }).then(() => {
+                    location.reload();
+                });
+                } else {
+                    Swal.fire ({
+                        icon: "error",
+                        title: "Not Delete",
+                        text: res.message,
+                    })
+                }
+            },
+            error: function () {
+		        Swal.fire({
+			        icon: "error",
+			        title: "Oops!",
+			        text: "An error occurred. Please login.",
+		        }).then((result) => {
+			        window.location.href = '/login';
+		        });
+		    }
+        })}})
+    }
+
+    //delete Whishlist
+    function whishlistDelete(id) {
+        event.preventDefault();
+         Swal.fire({
+        title: "Are you sure you want to delete this Product in Whishlist?",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+  }).then((result) =>{
+    if(result.isConfirmed) {
+        $.ajax({
+            url:"/removeWhishlist",
+            type:"DELETE",
+            data: JSON.stringify({
+                id: id,
+            }),
+            contentType: "application/json",
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire ({
+                        icon: "warning",
+                        title: "Delete",
+                        text: res.message,
+                    }).then(() => {
+                    location.reload();
+                });
+                } else {
+                    Swal.fire ({
+                        icon: "error",
+                        title: "Not Delete",
+                        text: res.message,
+                    })
+                }
+            },
+            error: function () {
+		        Swal.fire({
+			        icon: "error",
+			        title: "Oops!",
+			        text: "An error occurred. Please login.",
+		        }).then((result) => {
+			        window.location.href = '/login';
+		        });
+		    }
+        })}})
+    }
+</script>

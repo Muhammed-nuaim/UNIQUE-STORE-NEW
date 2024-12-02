@@ -1,0 +1,261 @@
+<%- include('../layouts/user/header.ejs') %>
+		
+
+	<!-- Slider -->
+	<section class="section-slide">
+		<div class="wrap-slick1">
+			<div class="slick1">
+				<div class="item-slick1" style="background-image: url(uploads/re-image/images-1729208092491-546344722-cropped-img-1729208065353-1.png);">
+					<div class="container h-full">
+						<div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+							<div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+								<span class="ltext-101 cl2 respon2">
+									Scale Collection 2018
+								</span>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+								<h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">
+									NEW SEASON
+								</h2>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+								<a href="/shopping" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+									Shop Now
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="item-slick1" style="background-image: url(uploads/re-image/images-1729208647520-907688705-cropped-img-1729208619120-1.png);">
+					<div class="container h-full">
+						<div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+							<div class="layer-slick1 animated visible-false" data-appear="rollIn" data-delay="0">
+								<span class="ltext-101 cl2 respon2">
+								   UNIQUE New-Season
+								</span>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="lightSpeedIn" data-delay="800">
+								<h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">
+									UNIQUE THE UNIQUENESS
+								</h2>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="slideInUp" data-delay="1600">
+								<a href="/shopping" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+									Shop Now
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="item-slick1" style="background-image: url(uploads/re-image/images-1729207758245-318716892-cropped-img-1729207697820-1.png);">
+					<div class="container h-full">
+						<div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+							<div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft" data-delay="0">
+								<span class="ltext-101 cl2 respon2">
+									car Collection 2018
+								</span>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight" data-delay="800">
+								<h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">
+									New arrivals
+								</h2>
+							</div>
+								
+							<div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
+								<a href="/shopping" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+									Shop Now
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+
+	
+
+
+	<!-- Product -->
+	<section class="bg0 p-t-23 p-b-140">
+		<div class="container">
+			<div class="p-b-10">
+				<h3 class="ltext-103 cl5">
+					Product Overview
+				</h3>
+			</div>
+
+			<div class="flex-w flex-sb-m p-b-52">
+			</div>
+
+			<div class="row isotope-grid">
+				<% for(let i = 0 ; i < products.length; i++ ) {%>
+				<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item <%products[i].size %>">
+					<!-- Block2 -->
+					<div class="block2">
+						<div class="block2-pic hov-img0">
+						<a href="/productDetails?id=<%=products[i]._id%>">
+							<div>
+							<img src="/uploads/re-image/<%=products[i].productImage[0] %>" alt="<%=products[i].productName %>">
+							</div></a>
+							<button class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" onclick="addToCart('<%=products[i]._id %>')">
+								Add to cart
+							</button>
+						</div>
+
+						<div class="block2-txt flex-w flex-t p-t-14">
+							<div class="block2-txt-child1 flex-col-l ">
+								<a href="/productDetails?id=<%=products[i]._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+									<%=products[i].productName%>
+								</a>
+
+								<span class="stext-105 cl3" >
+									<p>Original Price: <del>₹<%=products[i].regularPrice %></del></p>
+									<p>Offer Price: ₹<%=products[i].salePrice %></p>
+									<p>Size:<%=products[i].size %></p>
+							</span>
+							</div>
+
+							<div class="block2-txt-child2 flex-r p-t-3">
+								<a id="wishlist-btn-<%=products[i]._id%>" 
+								   class="btn-addwish-b2 dis-block pos-relative tooltip100" 
+								   data-tooltip="Add to Wishlist" 
+								   onclick="addWhishlist('<%=products[i]._id%>')">
+								   <% if (wishlistProductIds) { %>
+								   <% if (wishlistProductIds.includes(products[i]._id.toString())) { %>
+								  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+									<rect width="24" height="24" fill="none" />
+									<path fill="red" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+								  </svg>
+								  <% } else { %>
+									<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+										<rect width="24" height="24" fill="none" />
+										<path fill="black" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+									</svg>
+								  <% } %>
+								  <% } else { %>
+									<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+										<rect width="24" height="24" fill="none" />
+										<path fill="black" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z" />
+									</svg>
+								<% } %>
+								</a>
+							  </div>
+						</div>
+					</div>
+				</div>
+				<% } %>
+			</div>
+		</div>
+	</section>
+
+
+	<%- include('../layouts/user/footer.ejs') %>
+
+	
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+	function addWhishlist(id) {
+		$.ajax({
+		  url: "/addWhishlist",
+		  type: "POST",
+		  data: JSON.stringify({
+			id: id,
+		  }),
+		  contentType: "application/json",
+		  success: function (res) {
+			if (res.success) {
+			  // Show success message
+			  Swal.fire({
+				icon: "success",
+				title: "Success",
+				text: res.message,
+			  }).then(() => {
+				location.reload()
+			  })
+			} else if (res.success == false) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Removed",
+                    text: res.message,
+                }).then(() => {
+                    location.reload()
+                })
+            }else {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Oops!",
+                    text: res.message || "User Not Logged In",
+                }).then(() => {
+                window.location.href = '/login';
+                })
+            }
+		  },
+		  error: function () {
+			Swal.fire({
+			  icon: "error",
+			  title: "Oops!",
+			  text: "An error occurred. Please login.",
+			}).then((result) => {
+			  window.location.href = '/login';
+			});
+		  }
+		});
+	  }
+
+	  function addToCart(id) {
+		$.ajax({
+			url: "/addToCart",
+			type: "POST",
+			data: JSON.stringify({
+				id:id
+			}),
+			contentType: "application/json",
+			success: function (res) {
+				if(res.success) {
+					Swal.fire({
+						icon:"success",
+						title:"Success",
+						text: res.message ,
+					}).then((result) => {
+						location.reload()
+					})
+				} else if (res.success == false) {
+					Swal.fire({
+						icon:"error",
+						title:"Error",
+						text: res.message ,
+					})
+				} else {
+					Swal.fire({
+					icon: "warning",
+					title: "Oops!",
+					text: "Please login, Then try again...",
+		  		}).then((result) => {
+					window.location.href = '/login';
+		  		})
+				}
+			},
+			error: function () {
+		  		Swal.fire({
+					icon: "error",
+					title: "Oops!",
+					text: "An error occurred. Please login.",
+		  		}).then((result) => {
+					window.location.href = '/login';
+		  		});
+			}
+		})
+	}
+
+	</script>

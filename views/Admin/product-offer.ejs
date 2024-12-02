@@ -1,0 +1,301 @@
+<%- include('../layouts/admin/header.ejs') %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Offer Management</h1>
+
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="/admin/productOffer">Product Offers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link " href="/admin/categoryOffer">Category Offers</a>
+        </li>
+    </ul>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Add New Offer</h5>
+            <form method="post" id="offerProductForm" action="/admin/addProductOffer" onsubmit="return handleFormSubmit(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Product</label>
+                    <select class="form-select border-secondary" id="productId">
+                        <% for (i=0 ; i< existingProducts.length ; i++) { %>
+                        <option value="<%= existingProducts[i]._id %>" selected>
+                            <%= existingProducts[i].productName %>
+                        </option>
+                        <% } %>
+                    </select>
+                    <div id="product-error" class="error-message text-danger"></div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Offer Name</label>
+                        <input type="text" class="form-control border-secondary" id="name" placeholder="Enter offer name">
+                        <div id="name-error" class="error-message text-danger"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Offer Type</label>
+                        <select class="form-select border-secondary" id="offerType">
+                            <option value="Percentage" selected>Percentage</option>
+                            <option value="Fixed Amount">Fixed Amount</option>
+                        </select>
+                        <div id="type-error" class="error-message text-danger"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Offer Value</label>
+                        <input type="text" class="form-control border-secondary" id="value" placeholder="Enter value">
+                        <div id="value-error" class="error-message text-danger"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Expiry Date</label>
+                        <input type="date" class="form-control border-secondary" id="date">
+                        <div id="date-error" class="error-message text-danger"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-plus-circle me-2"></i> Add Offer
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Product Offers</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>NAME</th>
+                            <th>APPLIED PRODUCT</th>
+                            <th>VALUE</th>
+                            <th>START DATE</th>
+                            <th>END DATE</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        <% for ( i = 0 ; i < productOffer.length ; i++) { %>
+                        <tr>
+                            <td><%= productOffer[i].offerName %></td>
+                            <td><%= productOffer[i].productId.productName%></td>
+                            <td><%= productOffer[i].offerPrice %></td>
+                            <td><%= new Date( productOffer[i].createdOn).toDateString() %></td>
+                            <td><%= new Date( productOffer[i].expireOn).toDateString() %></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="confirmDelete('<%= productOffer[i]._id%>')">Delete</button>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+   .error-message {
+       color: red;
+   }
+   .thumbnails-container {
+       display: flex;
+       overflow-x: auto;
+   }
+   .thumbnail {
+       margin-right: 10px;
+   }
+
+
+
+/* Form control focus states */
+.form-control:focus,
+.form-select:focus {
+    border-color: #adb5bd;
+    box-shadow: 0 4px 12px rgba(111, 109, 109, 0.642);
+}
+
+/* Button hover states */
+.btn-dark:hover {
+    background-color: #adb5bd;
+    border-color: #adb5bd;
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    // Handle form submission
+    function handleFormSubmit(event) {
+        event.preventDefault();
+
+        if (!validateForm()) {
+            return false;
+        }
+
+          const  name = document.getElementById("name").value.trim();
+          const value = document.getElementById("value").value.trim();
+          const  date = document.getElementById("date").value.trim();
+          const  offerType = document.getElementById("offerType").value;
+          const selectedProductId = document.getElementById("productId").value;
+
+        // Send data via fetch
+        fetch('/admin/addProductOffer', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name,value,date,offerType,selectedProductId}),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Something went wrong');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if(data.success == true){
+            Swal.fire({
+                icon: 'success',
+                title: "Success",
+                text: "Product offer added successfully",
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops!',
+                text: "This Product have already a offer"
+            })
+        }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: "error",
+                title: "Oops!",
+                text: error.message,
+            });
+        });
+    };
+function validateForm() {
+    clearErrorMessages();
+
+    const name = document.getElementById("name").value.trim();
+    const value = document.getElementById("value").value.trim();
+    const date = document.getElementById("date").value.trim();
+    const offerType = document.getElementById("offerType").value;
+    let isValid = true;
+
+    // Name validation
+    if (name === "") {
+        displayErrorMessage("name-error", "Please enter a name.");
+        isValid = false;
+    } else if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+        displayErrorMessage("name-error", "Offer name should contain only letters, numbers and spaces.");
+        isValid = false;
+    }
+
+    // Value validation
+    if(offerType == "Percentage" ) {
+        if (value === "" || isNaN(value) || parseFloat(value) <= 0 || parseFloat(value) > 95) {
+        displayErrorMessage("value-error", "Please enter a valid positive offer under the 95 Percentage.");
+        isValid = false;
+    }
+    } else {
+        if (value === "" || isNaN(value) || parseFloat(value) <=0 ) {
+            displayErrorMessage("value-error", "Please enter a valid positive offer.")
+            isValid = false;
+        }
+    }
+    
+
+    // Date validation
+    if (date === "") {
+        displayErrorMessage("date-error", "Please enter a valid date.");
+        isValid = false;
+    } else {
+        const selectedDate = new Date(date);
+        const today = new Date();
+        if (selectedDate < today) {
+            displayErrorMessage("date-error", "Please select a future date.");
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+function displayErrorMessage(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+}
+
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName("error-message");
+    Array.from(errorElements).forEach((element) => {
+        element.innerText = "";
+        element.style.display = "none";
+    });
+}
+
+function confirmDelete(id) {
+        event.preventDefault();
+         Swal.fire({
+        title: "Are you sure you want to remove this Product Offer?",
+        showCancelButton: true,
+        confirmButtonText: "remove",
+  }).then((result) =>{
+    if(result.isConfirmed) {
+        $.ajax({
+            url:"/admin/removeProductOffer",
+            type:"DELETE",
+            data: JSON.stringify({
+                id: id,
+            }),
+            contentType: "application/json",
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire ({
+                        icon: "warning",
+                        title: "Remove",
+                        text: res.message,
+                    }).then(() => {
+                    location.reload();
+                });
+                } else {
+                    Swal.fire ({
+                        icon: "error",
+                        title: "Not Remove",
+                        text: res.message,
+                    })
+                }
+            },
+            error: function () {
+		        Swal.fire({
+			        icon: "error",
+			        title: "Oops!",
+			        text: "An error occurred. Please login.",
+		        }).then((result) => {
+			        window.location.href = '/admin/login';
+		        });
+		    }
+        })}})
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<%- include('../layouts/admin/footer.ejs') %>

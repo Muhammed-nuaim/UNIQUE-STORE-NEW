@@ -1,0 +1,245 @@
+<%- include('../layouts/admin/header.ejs') %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Categories</h2>
+            <p>Add, edit or delete a category</p>
+        </div>
+        <div>
+            <input type="text" placeholder="Search Categories" class="form-control bg-white">
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <form id="categoryForm" method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
+                        <div class="mb-4">
+                            <label for="category_name" class="form-label">Name</label>
+                            <input type="text" name="name" placeholder="Type here" class="form-control" id="category_name" />
+                            <div id="name-error" class="error-message text-danger"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea placeholder="Type here" name="description" class="form-control" id="description"></textarea>
+                            <div id="description-error" class="error-message text-danger"></div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">Create category</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Staus</th>
+                                    <th>List/Unlist</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                    <th class="text-end">Action</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% cat.reverse().forEach((category, index) => { %>
+                                    <tr>
+                                        <td><b><%= category.name %></b></td>
+                                        <td><%= category.description %></td>
+                                        <td>
+                                            <% if(category.isListed){ %>
+                                                <span class="badge rounded-pill alert-success" style="width: 60px;" >Listed</span>
+                                            <% } else { %>
+                                                <span class="badge rounded-pill alert-danger" >UnListed</span>
+                                                <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (category.isListed) { %>
+                                            <button class="btn btn-danger rounded font-sm mt-0 ">
+                                                <a href="/admin/listCategory?id=<%=category._id%>" class="text-white" style="text-decoration: none;">UnList</a>
+                                            </button>
+                                            <% } else { %>
+                                            <button class="btn btn-success rounded font-sm mt-0 ">
+                                                <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white" style="text-decoration: none;">List</a>
+                                            </button>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/editCategory?id=<%= category._id %>" class="btn btn-info text-white">Edit</a>
+                                        </td>
+                                        <td class="text-center">
+                                            <td class="text-center">
+                                                <button class="btn btn-danger" style="width: 90px" 
+                                                  onclick="confirmDelete('<%= category._id %>')">
+                                                  <span class="text-white">Delete</span>
+                                                </button>
+                                              </td>
+                                              
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> 
+                                                    <i class="material-icons md-more_horiz"></i>
+                                                </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#">View detail</a>
+                                                    <a class="dropdown-item" href="#">Edit info</a>
+                                                    <a class="dropdown-item text-danger" href="#">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+
+        <div class="container mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
+         
+         
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                    <% } %>
+         
+         
+                </ul>
+            </nav>
+         </div>
+    </div>
+
+</section>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function handleFormSubmit(event) {
+    event.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+
+    const name = document.getElementsByName("name")[0].value.trim();
+    const description = document.getElementById("description").value.trim();
+
+    fetch('/admin/addCategory', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, description }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
+        } else {
+            Swal.fire({
+                icon: 'Success',
+                title: "Success",
+                text: "Categoty is Successfully added"
+            }).then(() => {
+                    location.reload();
+                });
+        }
+        return response.json()
+    })
+    
+    .catch(error => {
+        if (error.message === "Category already exists") {
+            Swal.fire({
+                icon: 'error',
+                title: "Oops!",
+                text: "Category already exists.",
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops!",
+                text: "An error occurred while adding the category.",
+            });
+        }
+    });
+}
+
+
+    function validateForm() {
+        clearErrorMessages();
+
+        const name = document.getElementsByName("name")[0].value.trim();
+        const description = document.getElementById("description").value.trim();
+        let isValid = true;
+
+        // Validate name field
+        if (name === "") {
+            displayErrorMessage("name-error", "Please enter a name");
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            displayErrorMessage("name-error", "Category name should contain only alphabetic characters");
+            isValid = false;
+        }
+
+        // Validate description field
+        if (description === "") {
+            displayErrorMessage("description-error", "Please enter a description");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+
+    function clearErrorMessages() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+
+    function confirmDelete(categoryId) {
+  Swal.fire({
+    title: "Are you sure you want to delete this Category?",
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: "Delete",
+    denyButtonText: `Don't Delete`
+  }).then((result) => {
+    if (result.isConfirmed) {
+        Swal.fire("Category is deleted succesfully")
+     .then(()=>{
+        window.location.href = `/admin/deleteCategory?id=${categoryId}`;
+     }) 
+    } else if (result.isDenied) {
+      Swal.fire("Category is not deleted");
+    }
+  });
+}
+
+</script>
+
+<%- include('../layouts/admin/footer.ejs') %>

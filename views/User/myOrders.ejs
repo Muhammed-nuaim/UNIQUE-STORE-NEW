@@ -1,0 +1,91 @@
+<%- include('../layouts/user/header.ejs') %>
+
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <h2 class="card-title h3 mb-0">My Orders</h2>
+            <p class="card-text text-muted">View and manage your order history</p>
+        </div>
+        <div class="card-body">
+
+            <!-- Filtering Section -->
+            <div class="row mb-4">
+                <div class="col-lg-2 col-6 col-md-3">
+                    <p>Status</p>
+                    <select class="form-select" onchange="window.location.href='?status=' + this.value + '&limit=<%= limit %>&page=1'">
+                        <option value="Show all" <%= status === "Show all" ? "selected" : "" %>>Show all</option>
+                        <option value="Processing" <%= status === "Processing" ? "selected" : "" %>>Processing</option>
+                        <option value="Delivered" <%= status === "Delivered" ? "selected" : "" %>>Delivered</option>
+                        <option value="Shipped" <%= status === "Shipped" ? "selected" : "" %>>Shipped</option>
+                        <option value="Cancelled" <%= status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
+                        <option value="Pending" <%= status === "Pending" ? "selected" : "" %>>Pending</option>
+                        <option value="Return Request" <%= status === "Return Request" ? "selected" : "" %>>Return Request</option>
+                        <option value="Returned" <%= status === "Returned" ? "selected" : "" %>>Returned</option>
+                        <option value="Return Request Approved" <%= status === "Return Request Approved" ? "selected" : "" %>>Return Request Approved</option>
+                        <option value="Return Request Rejected" <%= status === "Return Request Rejected" ? "selected" : "" %>>Return Request Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <% if (orderData) { %>
+                <% for (let i = 0; i < orderData.length; i++) { %>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-8">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-box-seam me-2"></i>Order #<%= orderData[i].orderId %>
+                                    </h5>
+                                    <span class="badge <%= orderData[i].status === 'Delivered' ? 'bg-success' : 'bg-secondary' %>">
+                                        <%= orderData[i].status %>
+                                    </span>
+                                </div>
+                                <div class="col-sm-4 text-sm-end mt-2 mt-sm-0">
+                                    <a href="/viewOrderDetails?id=<%= orderData[i]._id %>" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye me-1"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><i class="bi bi-person me-2"></i><strong>Name:</strong></p>
+                                    <p class="text-muted"><%= orderData[i].address[0].name %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Address:</strong></p>
+                                    <p class="text-muted"><%= orderData[i].address[0].landMark %>, <%= orderData[i].address[0].city %>, <%= orderData[i].address[0].state %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><i class="bi bi-pin-map me-2"></i><strong>Pincode:</strong></p>
+                                    <p class="text-muted"><%= orderData[i].address[0].pincode %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><i class="bi bi-credit-card me-2"></i><strong>Payment Status:</strong></p>
+                                    <p class="<%= orderData[i].paymentStatus === 'Failed' ? 'text-danger' : 'text-success' %>">
+                                        <%= orderData[i].paymentStatus %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <p class="text-muted">No orders found</p>
+            <% } %>
+
+            <!-- Pagination Section -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?status=<%= status %>&limit=<%= limit %>&page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/user/footer.ejs') %>

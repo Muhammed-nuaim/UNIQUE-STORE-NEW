@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(45deg, #ffffff, #000000); /* Gradient background */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            border-radius: 10px; /* Rounded corners for the card */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Deeper shadow for a floating effect */
+            padding: 20px; /* Inner padding */
+        }
+        .form-control {
+            border-radius: 25px; /* Rounded corners for inputs */
+        }
+        .btn {
+            border-radius: 25px; /* Rounded corners for buttons */
+        }
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-center text-dark">Sign Up</h3>
+                        <form id="signform" method="post" action="/signup">
+                            <div class="form-group">
+                                <label for="name">User Name</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
+                                <div id="error1" class="error-message"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
+                                <div id="error2" class="error-message"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+                                <div id="error3" class="error-message"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cpassword">Confirm Password</label>
+                                <input type="password" class="form-control" id="cpassword" name="cpassword" placeholder="Confirm your password">
+                                <div id="error4" class="error-message"></div>
+                            </div>
+                            <%if(locals.message && message.length > 0){ %>
+                                <div class="alert alert-danger text-center"><%=message%></div>
+                            <% } %>
+                            <button type="submit" class="btn btn-primary btn-block mt-3">Sign Up</button>
+                            <p class="text-center mt-4">Already have an account? <a href="/login">Sign In</a></p>
+                            <div class="text-center mt-4">
+                                <p>Or sign in with:</p>
+                                <a href="/auth/google" class="btn btn-google btn-block">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIwLjk4ZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjU2IDI2MiI+PHBhdGggZmlsbD0iIzQyODVmNCIgZD0iTTI1NS44NzggMTMzLjQ1MWMwLTEwLjczNC0uODcxLTE4LjU2Ny0yLjc1Ni0yNi42OUgxMzAuNTV2NDguNDQ4aDcxLjk0N2MtMS40NSAxMi4wNC05LjI4MyAzMC4xNzItMjYuNjkgNDIuMzU2bC0uMjQ0IDEuNjIybDM4Ljc1NSAzMC4wMjNsMi42ODUuMjY4YzI0LjY1OS0yMi43NzQgMzguODc1LTU2LjI4MiAzOC44NzUtOTYuMDI3Ii8+PHBhdGggZmlsbD0iIzM0YTg1MyIgZD0iTTEzMC41NSAyNjEuMWMzNS4yNDggMCA2NC44MzktMTEuNjA1IDg2LjQ1My0zMS42MjJsLTQxLjE5Ni0zMS45MTNjLTExLjAyNCA3LjY4OC0yNS44MiAxMy4wNTUtNDUuMjU3IDEzLjA1NWMtMzQuNTIzIDAtNjMuODI0LTIyLjc3My03NC4yNjktNTQuMjVsLTEuNTMxLjEzbC00MC4yOTggMzEuMTg3bC0uNTI3IDEuNDY1QzM1LjM5MyAyMzEuNzk4IDc5LjQ5IDI2MS4xIDEzMC41NSAyNjEuMSIvPjxwYXRoIGZpbGw9IiNmYmJjMDUiIGQ9Ik01Ni4yODEgMTU2LjM3Yy0yLjc1Ni04LjEyMy00LjM1MS0xNi44MjctNC4zNTEtMjUuODJjMC04Ljk5NCAxLjU5NS0xNy42OTcgNC4yMDYtMjUuODJsLS4wNzMtMS43M0wxNS4yNiA3MS4zMTJsLTEuMzM1LjYzNUM1LjA3NyA4OS42NDQgMCAxMDkuNTE3IDAgMTMwLjU1czUuMDc3IDQwLjkwNSAxMy45MjUgNTguNjAyeiIvPjxwYXRoIGZpbGw9IiNlYjQzMzUiIGQ9Ik0xMzAuNTUgNTAuNDc5YzI0LjUxNCAwIDQxLjA1IDEwLjU4OSA1MC40NzkgMTkuNDM4bDM2Ljg0NC0zNS45NzRDMTk1LjI0NSAxMi45MSAxNjUuNzk4IDAgMTMwLjU1IDBDNzkuNDkgMCAzNS4zOTMgMjkuMzAxIDEzLjkyNSA3MS45NDdsNDIuMjExIDMyLjc4M2MxMC41OS0zMS40NzcgMzkuODkxLTU0LjI1MSA3NC40MTQtNTQuMjUxIi8+PC9zdmc+" alt="Google Logo"> Google
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const nameid = document.getElementById("name");
+        const emailid = document.getElementById("email");
+        const passwordid = document.getElementById("password");
+        const confirmpasswordid = document.getElementById("cpassword");
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+        const error3 = document.getElementById("error3");
+        const error4 = document.getElementById("error4");
+        const signform = document.getElementById("signform");
+
+        // Name Validation
+        function nameValidateChecking(e) {
+            const nameval = nameid.value;
+            const namepattern = /^[A-Za-z\s]+$/;
+
+            if (nameval.trim() === "") {
+                error1.style.display = "block";
+                error1.innerHTML = "Please enter a valid name";
+                e.preventDefault();
+            } else if (!namepattern.test(nameval)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Name can only contain alphabets and spaces";
+                e.preventDefault();
+            } else {
+                error1.style.display = "none";
+            }
+        }
+
+        // Email Validation
+        function emailValidateChecking(e) {
+            const emailval = emailid.value;
+            const emailpattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+            if (!emailpattern.test(emailval)) {
+                error2.style.display = "block";
+                error2.innerHTML = "Invalid email format";
+                e.preventDefault();
+            } else {
+                error2.style.display = "none";
+            }
+        }
+
+        // Password Validation
+        function passwordValidateChecking(e) {
+            const passval = passwordid.value;
+            const cpassval = confirmpasswordid.value;
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+
+            if (passval.length < 8) {
+                error3.style.display = "block";
+                error3.innerHTML = "Password must be at least 8 characters long";
+                e.preventDefault();
+            } else if (!alpha.test(passval) || !digit.test(passval)) {
+                error3.style.display = "block";
+                error3.innerHTML = "Password must contain both letters and numbers";
+                e.preventDefault();
+            } else if (passval !== cpassval) {
+                error4.style.display = "block";
+                error4.innerHTML = "Passwords do not match";
+                e.preventDefault();
+            } else {
+                error3.style.display = "none";
+                error4.style.display = "none";
+            }
+        }
+
+        // Add event listeners
+        signform.addEventListener("submit", function(e) {
+            nameValidateChecking(e);
+            emailValidateChecking(e);
+            passwordValidateChecking(e);
+        });
+    </script>
+</body>
+</html>

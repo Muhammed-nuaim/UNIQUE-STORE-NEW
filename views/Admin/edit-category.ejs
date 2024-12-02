@@ -1,0 +1,127 @@
+<%- include('../layouts/admin/header.ejs') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 mt-60">
+            <form id="categoryForm" method="post" action="/admin/editCategory/<%=category._id%>" onsubmit="return handleFormSubmit(event)">
+                <div class="d-grid text-end mt-30 col-md-5">
+                    <button class="btn btn-primary" type="submit">Update category</button>
+                </div>
+                <div class="mb-4 mt-30">
+                    <label for="category_name" class="form-label">Name</label>
+                    <input type="text" name="categoryName" value="<%= category.name %>" class="form-control border" />
+                    <div id="categoryName-error" class="error-message text-danger"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" id="description" class="form-control border"><%= category.description %></textarea>
+                    <div id="description-error" class="error-message text-danger"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function handleFormSubmit(event) {
+    event.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+
+    const categoryName = document.getElementsByName("categoryName")[0].value.trim();
+    const description = document.getElementById("description").value.trim();
+
+    // Use Fetch API to submit the form
+    fetch('/admin/editCategory/<%=category._id%>', {
+    method: "POST",
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ categoryName, description }),
+})
+.then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
+        } else {
+            Swal.fire({
+                icon: 'Success',
+                title: "Success",
+                text: "Categoty is Successfully Updated"
+            }).then(() => {
+                window.location.href = "/admin/category";
+                });
+        }
+        return response.json()
+    })
+.catch(error => {
+    console.log("Error:", error.message);  // Log the error message
+    if (error.message === "Category exists, please choose another name.") {
+        Swal.fire({
+            icon: 'error',
+            title: "Oops!",
+            text: "Category exists, please choose another name.",
+            
+        });
+    } else if (error.message === "Category not found") {
+        Swal.fire({
+            icon: 'error',
+            title: "Oops!",
+            text: "Category not found",
+        });
+    } 
+});
+
+
+}
+
+
+    function validateForm() {
+        clearErrorMessages();
+
+        const categoryName = document.getElementsByName("categoryName")[0].value.trim();
+        const description = document.getElementById("description").value.trim();
+        let isValid = true;
+
+        // Validate name field
+        if (categoryName === "") {
+            displayErrorMessage("categoryName-error", "Please enter a name");
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(categoryName)) {
+            displayErrorMessage("categoryName-error", "Category name should contain only alphabetic characters");
+            isValid = false;
+        }
+
+        // Validate description field
+        if (description === "") {
+            displayErrorMessage("description-error", "Please enter a description");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+
+    function clearErrorMessages() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+
+</script>
+
+<%- include('../layouts/admin/footer.ejs') %>
+

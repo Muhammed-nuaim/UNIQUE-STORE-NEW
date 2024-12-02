@@ -1,0 +1,162 @@
+<%- include('../layouts/user/header.ejs') %>
+
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+            Home
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <span class="stext-109 cl4">
+            whishlist
+        </span>
+    </div>
+</div>
+    
+
+<!-- Shoping Cart -->
+<form class="bg0 p-t-75 p-b-85">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+                <div class="m-l-250 m-r-250 m-lr-0-xl">
+                    <div class="wrap-table-shopping-cart">
+                        <table class="table-shopping-cart">
+                            <tr class="table_head">
+                                <th class="column-1">IMAGES</th>
+                                <th class="column-2">PRODUCT</th>
+                                <th class="column-3">PRICE</th>
+                                <th class="column-4">STOCK STATUS</th>
+                                <th class="column-5">REMOVE</th>
+                                <th class="column-6">ADD TO CART</th>
+                            </tr>
+                            <% if (product) { %>
+                            <% for(let i = 0 ; i < product.length; i++ ) {%>
+                            <tr class="table_row">
+                                <td class="column-1">
+                                    <div class="how-itemcart1">
+                                        <img src="/uploads/re-image/<%=product[i].productImage[0] %>" alt="<%= product[i].productName %>">
+                                    </div>
+                                </td>
+                                <td class="column-2"><%= product[i].productName %><br>
+                                    SIZE: <%= product[i].size %></td>
+                                <td class="column-3">₹<%= product[i].salePrice %></td>
+                                <td class="column-4">
+                                <% if(product[i].quantity > 10) { %>
+                                    <p class="text text-dark">Available</p>
+                                <% } else if(product[i].quantity > 0){%>
+                                    <p class="text text-danger">Limited Stock !</p>
+                                <% } else {%>
+                                    <p class="text text-danger">Out of stock !</p>
+                                <% } %>
+                                <td class="column-5">
+                                        <button class="btn btn-danger" style="width: 100%" 
+                                            onclick="confirmDelete('<%= product[i]._id %>')">
+                                            <span class="text-white">Remove</span>
+                                        </button>
+                                </td>
+                                <td class="column-6">
+                                    <div class="wrap-num-product flex-w m-l-25 m-r-0">
+                                        <a class="btn btn-dark" style="width: 100%" 
+                                            onclick="addToCart('<%= product[i]._id %>')">
+                                            <span class="text-white">Add to Cart</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                            <% } %>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+    <!--Footer-->
+<%- include('../layouts/user/footer.ejs') %>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmDelete(id) {
+        event.preventDefault();
+         Swal.fire({
+        title: "Are you sure you want to delete this Product in Whishlist?",
+        showCancelButton: true,
+        confirmButtonText: "Remove",
+  }).then((result) =>{
+    if(result.isConfirmed) {
+        $.ajax({
+            url:"/removeWhishlist",
+            type:"DELETE",
+            data: JSON.stringify({
+                id: id,
+            }),
+            contentType: "application/json",
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire ({
+                        icon: "warning",
+                        title: "Remove",
+                        text: res.message,
+                    }).then(() => {
+                    location.reload();
+                });
+                } else {
+                    Swal.fire ({
+                        icon: "error",
+                        title: "Not Delete",
+                        text: res.message,
+                    })
+                }
+            },
+            error: function () {
+		        Swal.fire({
+			        icon: "error",
+			        title: "Oops!",
+			        text: "An error occurred. Please login.",
+		        }).then((result) => {
+			        window.location.href = '/login';
+		        });
+		    }
+        })}})
+    }
+
+    //addToCart
+    function addToCart(id) {
+		$.ajax({
+			url: "/addToCart",
+			type: "POST",
+			data: JSON.stringify({
+				id:id
+			}),
+			contentType: "application/json",
+			success: function (res) {
+				if(res.success) {
+					Swal.fire({
+						icon:"success",
+						title:"Success",
+						text: res.message,
+					})
+				} else {
+					Swal.fire({
+						icon:"error",
+						title:"Error",
+						text: res.message,
+					})
+				}
+			},
+			error: function () {
+		  		Swal.fire({
+					icon: "error",
+					title: "Oops!",
+					text: "An error occurred. Please login.",
+		  		}).then((result) => {
+					window.location.href = '/login';
+		  		});
+			}
+		})
+	}
+</script>

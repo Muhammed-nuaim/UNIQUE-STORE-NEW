@@ -1,0 +1,320 @@
+<%- include('../layouts/user/header.ejs') %>
+<div class="container my-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="h2">Order Detail</h1>
+            <p class="text-muted">Details for Order ID: <%= orderDetails._id %></p>
+            <% if (orderDetails.paymentStatus == "Failed") {%>
+                <p class="text-danger">Payment Status: <%= orderDetails.paymentStatus %></p>
+            <% } %>
+        </div>
+        <div class="col-auto">
+            <% if (orderDetails.paymentStatus == "Failed") {%>
+                <button onclick="paypal('<%= orderDetails.finalAmount %>','<%= orderDetails.addressId %>','<%= orderDetails.paymentMethod %>')" class="btn btn-danger"> Try again</button>
+            <% } else { %>
+            <% if (orderDetails.cancelled == false && orderDetails.status != 'Delivered' && orderDetails.status !=="Return Request" && orderDetails.status !== "Return Request Approved" && orderDetails.status !== "Return Request Rejected") { %>
+                <button class="btn btn-danger" onclick="cancelledOrder('<%= orderDetails._id %>')">Cancel Order</button>
+            <% } else if (orderDetails.status == 'Delivered' ) { %>
+                <button class="btn btn-warning" onclick="returnOrder('<%= orderDetails._id %>')">Return</button>
+            <% } else if (orderDetails.status == 'Return Request') { %>
+                <p class="text-danger mb-0">"Your Return Request has been Successfully Processed by Our team"</p>
+            <% } else if (orderDetails.status === "Return Request Approved") { %>
+                <p class="text-success mb-0">This Order has been returned Successfully</p>
+            <% } else if (orderDetails.status === "Return Request Rejected") { %>
+                <p class="text-danger mb-0">This Order has been not returned</p>
+            <% } else { %>
+                <p class="text-danger mb-0">Cancelled Order</p>
+            <% } %>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Customer</h5>
+                    <p class="mb-1"><%= orderDetails.address[0].name %></p>
+                    <p class="mb-1"><%= orderDetails.address[0].phone %></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Info</h5>
+                    <p class="mb-1">Shipping: Fargo express</p>
+                    <p class="mb-1">Pay method: <%= orderDetails.paymentMethod %></p>
+                    <p class="mb-1">Status: <%= orderDetails.status %></p>
+                    <a href="/downloadInvoice?orderId=<%=orderDetails._id %>" class="card-link">Download Invoice</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Deliver to</h5>
+                    <p class="mb-1">City: <%= orderDetails.address[0].city %>, <%= orderDetails.address[0].state %></p>
+                    <p class="mb-1">Land-Mark: <%= orderDetails.address[0].landMark %></p>
+                    <p class="mb-1">Pincode: <%= orderDetails.address[0].pincode %></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Unit Offer Price</th>
+                                    <th class="text-end">Quantity</th>
+                                    <th class="text-end">Total</th>
+                                    <!-- <th class="text-end">Action</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for ( i = 0 ; i < orderDetails.orderedItems.length ; i++ ) { %>
+                                <tr>
+                                    <td>
+                                        <img src="/uploads/re-image/<%= orderDetails.orderedItems[i].productImage[0] %>" 
+                                             alt="<%= orderDetails.orderedItems[i].productName %>" 
+                                             class="img-thumbnail"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    </td>
+                                    <td><%= orderDetails.orderedItems[i].productName %></td>
+                                    <td class="text-end">₹<%=orderDetails.orderedItems[i].productId.regularPrice %></td>
+                                    <td class="text-end text-success">₹<%= orderDetails.orderedItems[i].price %></td>
+                                    <td class="text-end"><%= orderDetails.orderedItems[i].quantity %></td>
+                                    <td class="text-end">₹<%= orderDetails.orderedItems[i].totalPrice %></td>
+                                    <!-- <td class="text-end">
+                                    <button class="btn btn-danger" onclick="individualCanceledOrder('<%= orderDetails._id %>','<%= orderDetails.orderedItems[i]._id%>')">Cancel Order</button>
+                                    </td> -->
+                                </tr>
+                                <% } %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end">Offer Discount:</td>
+                                    <td class="text-end text-success">₹<%= orderDetails.offerDiscount %></td>
+                                </tr>
+                                <% if (orderDetails.couponApplied) { %>
+                                    <tr>
+                                        <td colspan="4" class="text-end">CouponDiscount:</td>
+                                        <td class="text-end text-success">₹<%= orderDetails.couponDiscount %></td>
+                                    </tr>
+                                <% } %>
+                                <tr>
+                                    <td colspan="4" class="text-end">Delivery Charge:</td>
+                                    <td class="text-end ">₹<%= orderDetails.deliveryCharge %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Total Saving</td>
+                                    <td class="text-end text-success">₹<%= orderDetails.totalDiscount %></td>
+                                <tr class="fw-bold">
+                                    <td colspan="4" class="text-end">Total:</td>
+                                    <td class="text-end">₹<%= orderDetails.finalAmount %></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<%- include('../layouts/user/footer.ejs') %>
+
+<script>
+    function cancelledOrder (orderId) {
+       
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to Cancell this order?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "/cancellOrder",
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        orderId
+                    }),
+                    success: function(res) {
+                        if(res.success) {
+                           Swal.fire({
+                            icon:'success',
+                            title:'Canncelled',
+                            text: res.message
+                           }).then(() => {
+                            location.reload();
+                           })
+                        } else {
+                            Swal.fire({
+                                icon:'error',
+                                title:"This Order Doesn't Cancelled",
+                                text: res.message,
+                            }).then(() => {
+                                location.reload();
+                            })
+                        }
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops!",
+                            text: error.message || "An error occured"
+                        }).then(() => {
+                            window.location.href = '/login'
+                        })
+                    }
+                })
+            }
+        })
+    }
+    function returnOrder(orderId) {
+    Swal.fire({
+        title: 'Return Order',
+        text: 'Please provide a reason for returning the order:',
+        input: 'textarea',
+        inputPlaceholder: 'Enter your reason here...',
+        showCancelButton: true,
+        confirmButtonText: 'Submit',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'You need to provide a reason!';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const reason = result.value;
+            $.ajax({
+                url: "/returnOrder",
+                type: 'PATCH',
+                contentType: "application/json",
+                data: JSON.stringify({
+                    orderId,
+                    reason
+                }),
+                success: function(res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Returned',
+                            text: res.message
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: "Return Failed",
+                            text: res.message,
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops!",
+                        text: error.message || "An error occurred"
+                    }).then(() => {
+                        window.location.href = '/login';
+                    });
+                }
+            });
+        }
+    });
+}
+
+// function individualCanceledOrder (orderId,itemId) {
+//     Swal.fire({
+//             title: 'Are you sure?',
+//             text: "Do you want to Cancell this Item?",
+//             icon: 'warning',
+//             showCancelButton: true,
+//             confirmButtonText: 'Yes!',
+//             cancelButtonText: 'Cancel'
+//         }).then((result) => {
+//             if(result.isConfirmed) {
+//                 $.ajax({
+//                     url: "/individualCancelOrder",
+//                     type: 'PATCH',
+//                     contentType: "application/json",
+//                     data: JSON.stringify({
+//                         orderId,itemId
+//                     }),
+//                     success: function(res) {
+//                     if(res.success) {
+//                         Swal.fire({
+//                             icon:'success',
+//                             title:'Canncelled',
+//                             text: res.message
+//                         }).then(() => {
+//                             location.reload();
+//                         })
+//                     } else {
+//                         Swal.fire({
+//                             icon:'error',
+//                             title:"This Order Doesn't Cancelled",
+//                             text: res.message,
+//                         }).then(() => {
+//                             location.reload();
+//                         })
+//                     }
+//                 },
+//                 error: function(error) {
+//                     Swal.fire({
+//                         icon: "error",
+//                         title: "Oops!",
+//                         text: error.message || "An error occured"
+//                     }).then(() => {
+//                         window.location.href = '/login'
+//                     })
+//                 }
+//             })
+//         }
+//     })
+// }
+
+function paypal(subTotal,addressId,paymentMethod) {
+            fetch('/payPal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subTotal:subTotal,
+                    addressId:addressId,
+                    paymentMethod:paymentMethod,
+                    orderId: '<%= orderDetails._id%>'
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.approval_url) {
+                    window.location.href = data.approval_url;
+                } else {
+                    alert("Error initiating PayPal payment. Please try again.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+</script>
