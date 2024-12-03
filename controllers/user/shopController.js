@@ -87,8 +87,6 @@ const shoppingPage = async (req, res) => {
             case 'popularity':
                 sortConfig.popularity = -1;
                 break;
-            default:
-                sortConfig.createdOn = -1;
         }
 
         const totalProducts = await Product.countDocuments(query);
