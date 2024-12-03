@@ -76,18 +76,19 @@ const saveOrder = async (req,res) => {
         
         if(existingUser && address && cart && cartItems.length > 0) {
             const addressData = address.addresses.find(id => id._id == addressId);
-            for (const item of cartItems) {
-                await Product.updateOne(
-                    { _id: item.productId },
-                    { $inc: { quantity: -item.quantity } }
-                );
-            }
+            
             if(addressData && paymentMethod ) {
                 if(paymentMethod == "Cash on Delivery"){
                     if(cart.subTotal >= 10000) {                   
                        return res.status(201).json({success:false,message:"Cash on Delivery: Only Available in maximum order of 10000"});
                     }
-                    
+                     
+                }
+                for (const item of cartItems) {
+                    await Product.updateOne(
+                        { _id: item.productId },
+                        { $inc: { quantity: -item.quantity } }
+                    );
                 }
                 const addToOrder = new Order({
                     userId: existingUser._id,
