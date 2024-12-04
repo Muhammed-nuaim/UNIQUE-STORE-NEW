@@ -29,8 +29,7 @@ const productSchema = new Schema({
         required:true
     },
     productOffer : {
-        type:Schema.Types.ObjectId,
-        ref:"productOffer",
+        type:Number,
         sparse:true
     },
     quantity:{

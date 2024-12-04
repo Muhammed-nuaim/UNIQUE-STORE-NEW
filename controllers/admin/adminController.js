@@ -31,9 +31,11 @@ const login = async (req,res) => {
                 req.session.admin =  true;
                 return res.redirect ("/admin/loadDashboard")
             } else {
+                req.flash('error', 'Invalid Password.');
                 return res.redirect("/admin/login")
             }
         } else {
+            req.flash('error', 'Invalid Admin.');
             return res.redirect("/admin/login")
         }
     } catch (error) {

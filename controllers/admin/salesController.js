@@ -261,7 +261,7 @@ const downloadSalesReportInPdf = async (req, res) => {
     // Fetch sales data
     const sales = await Order.find({
       createdOn: { $gte: startDate, $lte: endDate }
-    }).populate('userId').populate('orderedItems.productId');
+    }).populate('userId').populate('orderedItems.productId').populate('orderedItems');
 
     let totalSalesAmount = 0;
     let totalCouponDiscount = 0;

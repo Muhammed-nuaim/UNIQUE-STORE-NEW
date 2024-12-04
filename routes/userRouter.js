@@ -43,6 +43,8 @@ user_route.get("/reset-password",profileController.getResetPassPage);
 user_route.post("/reset-password",profileController.newPassword);
 user_route.get("/userProfile",userAuth,profileController.userProfile);
 user_route.put("/updateProfile",userAuth,profileController.updateProfile);
+user_route.get("/AboutUs",userController.loadAboutUs)
+user_route.get("/contactUs",userAuth,userController.loadContactUs)
 
 //address Management
 user_route.post("/addAddress",userAuth,addressController.addAddress);

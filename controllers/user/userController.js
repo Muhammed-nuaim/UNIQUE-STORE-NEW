@@ -218,6 +218,30 @@ const resendOtp = async (req, res) => {
     }
 };
 
+const loadAboutUs = async(req,res) => {
+    try {
+        const user = req.session.user;
+        if(user) {
+            res.render('AboutUs',{user})
+        } else {
+            res.render('AboutUs')
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: "An error occurred" });
+    }
+}
+
+const loadContactUs = async (req,res) => {
+    try {
+    const user = req.session.user;
+    if(user) {
+        res.render('contactUs',{user})
+    }
+    } catch (error) {
+        res.status(500).json({ success: false, message: "An error occurred" });
+    }
+}
+
 const logout = async (req, res) => {
     try {
         req.session.user = null;
@@ -236,6 +260,8 @@ module.exports = {
     loadSignup,
     signup,
     loadLogin,
+    loadAboutUs,
+    loadContactUs,
     login,
     verifyOtp,
     resendOtp,

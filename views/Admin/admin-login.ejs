@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN LOGIN</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <!-- FontAwesome -->
     <style>
         body {
             background: linear-gradient(45deg, #ffffff, #000000); 
@@ -25,6 +26,13 @@
         .btn {
             border-radius: 25px; 
         }
+        .position-relative .fas {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -39,20 +47,65 @@
                                 <label for="email">Email address</label>
                                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group position-relative">
                                 <label for="password">Password</label>
                                 <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                                <i id="togglePassword" class="fas fa-eye pt-4"></i>
                             </div>
-
-                            <%if(locals.message && message.length > 0){ %>
-                                <div class="alert alert-danger text-center"><%=message%></div>
-                            <% } %>
                         
                             <button type="submit" class="btn btn-primary btn-block mt-3">Log In</button>
-                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <% if (successMessage && successMessage.length) { %>
+		<script>
+			Swal.fire({
+				icon: 'success',
+				title: 'Success',
+				text: '<%= successMessage %>',
+				confirmButtonText: 'OK'
+			});
+		</script>
+	<% } %>
+	
+	<% if (errorMessage && errorMessage.length) { %>
+		<script>
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: '<%= errorMessage %>',
+				confirmButtonText: 'OK'
+			});
+		</script>
+		<% } %>
+    <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <!-- Password Toggle Script -->
+    <script>
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            const passwordField = document.getElementById("password");
+            const icon = this;
+
+            // Toggle the password field type
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        });
+    </script>
 </body>
 </html>

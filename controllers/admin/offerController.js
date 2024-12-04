@@ -4,7 +4,6 @@ const User = require('../../models/userModel');
 const Order = require('../../models/orderModel')
 const ProductOffer = require("../../models/productOfferModel");
 const CategoryOffer = require("../../models/categoryOfferModel");
-const productOffer = require("../../models/productOfferModel");
 
 const getProductOffer = async(req,res) => {
     try {
@@ -73,11 +72,17 @@ const addProductOffer = async (req,res) => {
                 },{salePrice:newOfferUpdated.offerPrice,productOffer:newOfferUpdated.offerPrice})
             }
 
-            res.status(200).json({success:true})
+            return res.status(200).json({
+                success: true,
+                message: "Product offer added successfully"
+            });
         } else {
             console.log("1");
             
-            res.status(201).json({success:false})
+            return res.status(201).json({
+                success: false,
+                message: "This Product has Already an Offer"
+            });
         }
         
     } catch (error) {
@@ -112,7 +117,9 @@ const deleteProductOffer = async (req,res) => {
                         )
                         res.status(200).json({success:true,message:"ProductOffer removed Succesfully"})
                     } else {
-                        newPrice = existingProduct.regularPrice - (existingProduct.regularPrice * (5/100))
+                        // newPrice = existingProduct.regularPrice - (existingProduct.regularPrice * (5/100))
+                        newPrice = existingProduct.regularPrice 
+
                         await Product.updateOne(
                             {_id:existingProduct._id},
                             {salePrice:newPrice}
